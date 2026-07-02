@@ -1,0 +1,10 @@
+# Regulon base configuration.
+# Values here are defaults; environment variables with the REGULON_ prefix override them
+# (e.g. REGULON_ENVIRONMENT=ci). See .env.example.
+#
+# Convention (AGENTS.md): all thresholds, model names, weights, and budgets live here —
+# no magic numbers in code. Sections grow milestone by milestone.
+
+app_name: regulon
+environment: dev
+data_dir: ./data

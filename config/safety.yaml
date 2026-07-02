@@ -1,0 +1,84 @@
+# Denylist configuration for scripts/public_safety_scan.py.
+#
+# The scan enforces Non-Negotiable #1 (public-safe repo), #2 (data hygiene), and #6
+# (no self-praise vocabulary) from PLAN.md. It fails CI on any hit.
+#
+# NOTE ON EXCLUSIONS: PLAN.md and this file are excluded because they *quote* the
+# denylisted phrases in order to define them. Nothing else may be excluded without
+# an ADR explaining why.
+
+exclude_paths:
+  - "PLAN.md"
+  - "config/safety.yaml"
+
+exclude_dirs:
+  - ".git"
+  - ".venv"
+  - "venv"
+  - "node_modules"
+  - "dist"
+  - "build"
+  - ".mypy_cache"
+  - ".ruff_cache"
+  - ".pytest_cache"
+  - "__pycache__"
+  - ".next"
+  - ".claude"
+
+exclude_extensions:
+  - ".png"
+  - ".jpg"
+  - ".jpeg"
+  - ".gif"
+  - ".ico"
+  - ".woff"
+  - ".woff2"
+  - ".pdf"
+  - ".zip"
+  - ".gz"
+  - ".sqlite3"
+  - ".db"
+
+patterns:
+  - name: email-address
+    description: Personal email addresses (documentation placeholders are allowlisted)
+    regex: '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}'
+    allow:
+      - '@example\.(com|org|net)$'
+      - '@users\.noreply\.github\.com$'
+
+  - name: employer-reference
+    description: Employer/client-sounding possessive phrases; this repo has no employer or clients
+    regex: '(?i)\b(my|our)\s+(employer|company|firm|bank|client|clients|customer|customers)\b'
+
+  - name: production-claim
+    description: Claims that this software runs in production at a specific firm
+    regex: '(?i)\b(in production at|used in production by|deployed at) [A-Z]'
+
+  - name: aws-access-key
+    description: AWS access key IDs
+    regex: '\bAKIA[0-9A-Z]{16}\b'
+
+  - name: secret-key-token
+    description: Provider secret keys (sk-... style)
+    regex: '\bsk-[A-Za-z0-9_-]{20,}\b'
+
+  - name: github-token
+    description: GitHub personal access tokens
+    regex: '\bgh[pousr]_[A-Za-z0-9]{36,}\b'
+
+  - name: slack-token
+    description: Slack tokens
+    regex: '\bxox[baprs]-[A-Za-z0-9-]{10,}\b'
+
+  - name: private-key-block
+    description: PEM private key material
+    regex: '-----BEGIN [A-Z ]*PRIVATE KEY-----'
+
+  - name: ssn-like
+    description: US SSN-shaped numbers (PII)
+    regex: '\b\d{3}-\d{2}-\d{4}\b'
+
+  - name: self-praise
+    description: Banned self-praise vocabulary (show numbers, not adjectives)
+    regex: '(?i)(\b(world-class|production-grade|state-of-the-art|battle-tested)\b|\bnot a toy\b|\bstands out\b)'

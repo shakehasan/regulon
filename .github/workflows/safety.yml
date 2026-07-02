@@ -1,0 +1,31 @@
+name: Public Safety Scan
+
+# Standalone safety gate: also runs inside ci.yml, but this workflow keeps the
+# scan visible as its own status check and re-checks the repo weekly.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "17 6 * * 1" # Mondays 06:17 UTC
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install scanner deps
+        run: pip install PyYAML
+
+      - name: Run public safety scan
+        run: python scripts/public_safety_scan.py
