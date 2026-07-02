@@ -32,6 +32,11 @@ The target architecture, built milestone by milestone. Every request flows throu
 authenticated API → governed orchestration → routed model calls → grounded retrieval — with every
 decision audited and every finished brief held for human approval.
 
+![Regulon system architecture](docs/assets/architecture.svg)
+
+<details>
+<summary><b>Text version (Mermaid source)</b></summary>
+
 ```mermaid
 flowchart TB
     subgraph clients["Clients"]
@@ -104,6 +109,25 @@ flowchart TB
     orch --> OTEL
     EVAL -.gates releases.-> orch
 ```
+
+</details>
+
+### The agent workforce
+
+One supervisor and five specialists, orchestrated as a LangGraph supervisor graph with typed
+Pydantic state, explicit conditional edges, and enforced step budgets.
+
+| Agent | Role | Inputs | Outputs | Guardrails applied |
+|---|---|---|---|---|
+| `supervisor` | Plans, decomposes, routes sub-tasks, aggregates | Research task, agent results | Sub-task assignments, final aggregation | Loop/step budgets, recursion limit |
+| `retriever` | Query rewriting + hybrid retrieval + reranking | Sub-task queries | Evidence bundles with source spans + citation IDs | Relevance grading |
+| `analyst` | Numeric/tabular reasoning over evidence | Evidence bundles | Computed figures (revenue deltas, comparisons) | Safe calculator + table extractor only (no free-form code) |
+| `writer` | Drafts the brief strictly from evidence | Evidence bundles, analyst figures | Draft brief with inline `[S1]` citations | Citation-required policy |
+| `critic` | Checks claim–evidence alignment | Draft brief + evidence | Flags on uncited claims; one bounded revision loop | Revision loop capped at 1 |
+| `compliance` | Policy + redaction pass on the final draft | Revised brief | Cleared brief, or forced HITL escalation | Policy engine, PII redaction, fail-closed escalation |
+
+The finished brief never publishes itself: it lands in the approval queue as `pending_review`, and
+only a `reviewer` role can mark it `final`.
 
 ### Layers and responsibilities
 

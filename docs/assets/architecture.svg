@@ -1,0 +1,170 @@
+<svg width="100%" viewBox="0 0 1240 850" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Segoe UI, -apple-system, Helvetica, Arial, sans-serif">
+  <title>Regulon system architecture</title>
+  <desc>Clients call a FastAPI control plane with RBAC; a LangGraph supervisor orchestrates five specialist agents between input and output guardrails, ending at a human-in-the-loop checkpoint; routing selects models through a local-first gateway; retrieval is hybrid RAG with citations; governance records everything in a hash-chained audit log; human decisions feed back into RL-tuned routing.</desc>
+
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4FE3C1"/>
+    </marker>
+  </defs>
+
+  <!-- background -->
+  <rect x="0" y="0" width="1240" height="850" fill="#0B1020"/>
+
+  <!-- header -->
+  <text x="40" y="52" font-size="26" font-weight="700" fill="#4FE3C1" letter-spacing="6">REGULON</text>
+  <text x="40" y="76" font-size="13" fill="#9AAAC8">Governed multi-agent RAG platform — system architecture</text>
+
+  <!-- legend -->
+  <line x1="850" y1="48" x2="884" y2="48" stroke="#4FE3C1" stroke-width="1.6" marker-end="url(#arr)"/>
+  <text x="892" y="52" font-size="10.5" fill="#9AAAC8">request flow</text>
+  <line x1="990" y1="48" x2="1024" y2="48" stroke="#4FE3C1" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arr)"/>
+  <text x="1032" y="52" font-size="10.5" fill="#9AAAC8">feedback / async</text>
+
+  <!-- ================= clients ================= -->
+  <rect x="40" y="96" width="230" height="46" rx="8" fill="#1B2647" stroke="#3A4A7A"/>
+  <text x="155" y="115" font-size="13" font-weight="600" fill="#EAF1FB" text-anchor="middle">regulon CLI</text>
+  <text x="155" y="132" font-size="10.5" fill="#9AAAC8" text-anchor="middle">ingest · ask · research · review</text>
+
+  <rect x="310" y="96" width="230" height="46" rx="8" fill="#1B2647" stroke="#3A4A7A"/>
+  <text x="425" y="115" font-size="13" font-weight="600" fill="#EAF1FB" text-anchor="middle">Dashboard</text>
+  <text x="425" y="132" font-size="10.5" fill="#9AAAC8" text-anchor="middle">Next.js — runs · approvals · evals</text>
+
+  <rect x="580" y="96" width="230" height="46" rx="8" fill="#1B2647" stroke="#3A4A7A"/>
+  <text x="695" y="115" font-size="13" font-weight="600" fill="#EAF1FB" text-anchor="middle">MCP client</text>
+  <text x="695" y="132" font-size="10.5" fill="#9AAAC8" text-anchor="middle">Claude Desktop · any MCP host</text>
+
+  <line x1="155" y1="142" x2="155" y2="160" stroke="#4FE3C1" stroke-width="1.6" marker-end="url(#arr)"/>
+  <line x1="425" y1="142" x2="425" y2="160" stroke="#4FE3C1" stroke-width="1.6" marker-end="url(#arr)"/>
+  <line x1="695" y1="142" x2="695" y2="160" stroke="#4FE3C1" stroke-width="1.6" marker-end="url(#arr)"/>
+
+  <!-- ================= API bar ================= -->
+  <rect x="40" y="162" width="770" height="56" rx="10" fill="#131A30" stroke="#263255"/>
+  <text x="56" y="186" font-size="14" font-weight="700" fill="#EAF1FB">Control-plane API — FastAPI</text>
+  <text x="56" y="204" font-size="11.5" fill="#9AAAC8">token auth · RBAC (analyst / reviewer / admin) · REST routers · MCP server</text>
+
+  <line x1="425" y1="218" x2="425" y2="236" stroke="#4FE3C1" stroke-width="1.6" marker-end="url(#arr)"/>
+
+  <!-- ================= orchestration panel ================= -->
+  <rect x="40" y="238" width="770" height="330" rx="10" fill="#131A30" stroke="#263255"/>
+  <text x="56" y="262" font-size="14" font-weight="700" fill="#4FE3C1">Orchestration — LangGraph</text>
+
+  <rect x="64" y="280" width="200" height="48" rx="8" fill="#1B2647" stroke="#3A4A7A"/>
+  <text x="164" y="300" font-size="12.5" font-weight="600" fill="#EAF1FB" text-anchor="middle">input guardrails</text>
+  <text x="164" y="316" font-size="10.5" fill="#9AAAC8" text-anchor="middle">prompt-injection · PII checks</text>
+
+  <rect x="330" y="280" width="190" height="48" rx="8" fill="#1B2647" stroke="#4FE3C1"/>
+  <text x="425" y="300" font-size="12.5" font-weight="700" fill="#EAF1FB" text-anchor="middle">supervisor</text>
+  <text x="425" y="316" font-size="10.5" fill="#9AAAC8" text-anchor="middle">plan · route · budgets</text>
+
+  <line x1="264" y1="304" x2="326" y2="304" stroke="#4FE3C1" stroke-width="1.6" marker-end="url(#arr)"/>
+
+  <!-- fan-out to agents -->
+  <line x1="425" y1="328" x2="132" y2="368" stroke="#4FE3C1" stroke-width="1.2" marker-end="url(#arr)"/>
+  <line x1="425" y1="328" x2="284" y2="368" stroke="#4FE3C1" stroke-width="1.2" marker-end="url(#arr)"/>
+  <line x1="425" y1="328" x2="436" y2="368" stroke="#4FE3C1" stroke-width="1.2" marker-end="url(#arr)"/>
+  <line x1="425" y1="328" x2="588" y2="368" stroke="#4FE3C1" stroke-width="1.2" marker-end="url(#arr)"/>
+  <line x1="425" y1="328" x2="740" y2="368" stroke="#4FE3C1" stroke-width="1.2" marker-end="url(#arr)"/>
+
+  <!-- agents row -->
+  <rect x="64" y="372" width="136" height="64" rx="8" fill="#1B2647" stroke="#3A4A7A"/>
+  <text x="132" y="398" font-size="12.5" font-weight="600" fill="#EAF1FB" text-anchor="middle">retriever</text>
+  <text x="132" y="416" font-size="10" fill="#9AAAC8" text-anchor="middle">hybrid search → evidence</text>
+
+  <rect x="216" y="372" width="136" height="64" rx="8" fill="#1B2647" stroke="#3A4A7A"/>
+  <text x="284" y="398" font-size="12.5" font-weight="600" fill="#EAF1FB" text-anchor="middle">analyst</text>
+  <text x="284" y="416" font-size="10" fill="#9AAAC8" text-anchor="middle">calculator · tables</text>
+
+  <rect x="368" y="372" width="136" height="64" rx="8" fill="#1B2647" stroke="#3A4A7A"/>
+  <text x="436" y="398" font-size="12.5" font-weight="600" fill="#EAF1FB" text-anchor="middle">writer</text>
+  <text x="436" y="416" font-size="10" fill="#9AAAC8" text-anchor="middle">draft with [S1] citations</text>
+
+  <rect x="520" y="372" width="136" height="64" rx="8" fill="#1B2647" stroke="#3A4A7A"/>
+  <text x="588" y="398" font-size="12.5" font-weight="600" fill="#EAF1FB" text-anchor="middle">critic</text>
+  <text x="588" y="416" font-size="10" fill="#9AAAC8" text-anchor="middle">claim–evidence checks</text>
+
+  <rect x="672" y="372" width="136" height="64" rx="8" fill="#1B2647" stroke="#3A4A7A"/>
+  <text x="740" y="398" font-size="12.5" font-weight="600" fill="#EAF1FB" text-anchor="middle">compliance</text>
+  <text x="740" y="416" font-size="10" fill="#9AAAC8" text-anchor="middle">policy · redaction</text>
+
+  <!-- critic -> writer bounded revision loop -->
+  <path d="M588,440 C 560,458 464,458 440,442" fill="none" stroke="#4FE3C1" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#arr)"/>
+  <text x="514" y="466" font-size="10.5" fill="#9AAAC8" text-anchor="middle">1 bounded revision</text>
+
+  <!-- retriever down to retrieval subsystem -->
+  <line x1="132" y1="436" x2="132" y2="584" stroke="#4FE3C1" stroke-width="1.4" marker-end="url(#arr)"/>
+  <text x="142" y="562" font-size="10.5" fill="#9AAAC8">queries + evidence</text>
+
+  <!-- compliance -> output guardrails -->
+  <path d="M740,436 L740,478 L365,478 L365,488" fill="none" stroke="#4FE3C1" stroke-width="1.4" marker-end="url(#arr)"/>
+
+  <rect x="230" y="492" width="270" height="52" rx="8" fill="#1B2647" stroke="#3A4A7A"/>
+  <text x="365" y="513" font-size="12.5" font-weight="600" fill="#EAF1FB" text-anchor="middle">output guardrails</text>
+  <text x="365" y="530" font-size="10" fill="#9AAAC8" text-anchor="middle">groundedness threshold · citation-required</text>
+
+  <line x1="500" y1="518" x2="526" y2="518" stroke="#4FE3C1" stroke-width="1.6" marker-end="url(#arr)"/>
+
+  <rect x="530" y="492" width="270" height="52" rx="8" fill="#1B2647" stroke="#4FE3C1"/>
+  <text x="665" y="513" font-size="12.5" font-weight="700" fill="#EAF1FB" text-anchor="middle">HITL checkpoint</text>
+  <text x="665" y="530" font-size="10" fill="#9AAAC8" text-anchor="middle">pending_review → approve / reject</text>
+
+  <!-- HITL -> governance -->
+  <path d="M665,544 L665,576 L1025,576 L1025,584" fill="none" stroke="#4FE3C1" stroke-width="1.4" marker-end="url(#arr)"/>
+
+  <!-- ================= routing panel (right column) ================= -->
+  <rect x="850" y="162" width="350" height="200" rx="10" fill="#131A30" stroke="#263255"/>
+  <text x="866" y="186" font-size="14" font-weight="700" fill="#4FE3C1">Routing</text>
+  <text x="866" y="208" font-size="11.5" fill="#EAF1FB">1&#160;&#160;rules — YAML intent table</text>
+  <text x="866" y="226" font-size="11.5" fill="#EAF1FB">2&#160;&#160;semantic — exemplar similarity</text>
+  <text x="866" y="244" font-size="11.5" fill="#EAF1FB">3&#160;&#160;cost / latency-aware — budget caps</text>
+  <text x="866" y="262" font-size="11.5" fill="#EAF1FB">4&#160;&#160;policy — sensitive → strict path</text>
+  <text x="866" y="280" font-size="11.5" fill="#EAF1FB">5&#160;&#160;fallback chains — every hop traced</text>
+  <text x="866" y="298" font-size="11.5" fill="#EAF1FB">6&#160;&#160;semantic cache — hit / miss metrics</text>
+  <rect x="866" y="312" width="318" height="34" rx="6" fill="none" stroke="#4FE3C1" stroke-dasharray="5 4"/>
+  <text x="1025" y="333" font-size="10.5" fill="#4FE3C1" text-anchor="middle">RL-tuned preferences — LinUCB · offline · rl_enabled</text>
+
+  <!-- orchestration <-> routing -->
+  <line x1="814" y1="304" x2="846" y2="304" stroke="#4FE3C1" stroke-width="1.6" marker-start="url(#arr)" marker-end="url(#arr)"/>
+
+  <line x1="1025" y1="362" x2="1025" y2="378" stroke="#4FE3C1" stroke-width="1.6" marker-end="url(#arr)"/>
+
+  <!-- ================= model gateway ================= -->
+  <rect x="850" y="382" width="350" height="170" rx="10" fill="#131A30" stroke="#263255"/>
+  <text x="866" y="406" font-size="14" font-weight="700" fill="#4FE3C1">Model gateway</text>
+  <text x="866" y="428" font-size="11.5" fill="#EAF1FB">ollama — local, $0 (default)</text>
+  <text x="866" y="446" font-size="11.5" fill="#EAF1FB">deterministic — CI only, seeded</text>
+  <text x="866" y="464" font-size="11.5" fill="#EAF1FB">openai · anthropic · bedrock · azure — optional</text>
+  <text x="866" y="486" font-size="10.5" fill="#9AAAC8">registry: capabilities · context · latency · cost</text>
+  <text x="866" y="502" font-size="10.5" fill="#9AAAC8">token + cost accounting on every call</text>
+
+  <!-- ================= retrieval strip ================= -->
+  <rect x="40" y="588" width="770" height="96" rx="10" fill="#131A30" stroke="#263255"/>
+  <text x="56" y="612" font-size="14" font-weight="700" fill="#4FE3C1">Retrieval — hybrid RAG</text>
+  <text x="56" y="636" font-size="12" fill="#EAF1FB">dense (bge-small) + BM25 → RRF → cross-encoder rerank → grade → cited evidence [S1][S2]</text>
+  <text x="56" y="658" font-size="10.5" fill="#9AAAC8">knowledge base: SQLite + numpy (default) · Postgres + pgvector (docker profile) · sources: SEC EDGAR + SYNTHETIC docs</text>
+
+  <!-- ================= governance ================= -->
+  <rect x="850" y="588" width="350" height="96" rx="10" fill="#131A30" stroke="#263255"/>
+  <text x="866" y="612" font-size="14" font-weight="700" fill="#4FE3C1">Governance</text>
+  <text x="866" y="634" font-size="11" fill="#EAF1FB">policy engine (YAML) · PII redaction</text>
+  <text x="866" y="652" font-size="11" fill="#EAF1FB">hash-chained audit log — regulon audit verify</text>
+  <text x="866" y="670" font-size="11" fill="#EAF1FB">approval queue · webhook notifier</text>
+
+  <!-- ================= observability ================= -->
+  <rect x="40" y="712" width="770" height="76" rx="10" fill="#131A30" stroke="#263255"/>
+  <text x="56" y="736" font-size="14" font-weight="700" fill="#4FE3C1">Observability</text>
+  <text x="56" y="758" font-size="11.5" fill="#EAF1FB">OTel spans → JSONL traces · HTML trace viewer · Prometheus /metrics · Grafana · per-run cost meter</text>
+
+  <!-- ================= evaluation ================= -->
+  <rect x="850" y="712" width="350" height="76" rx="10" fill="#131A30" stroke="#263255"/>
+  <text x="866" y="736" font-size="14" font-weight="700" fill="#4FE3C1">Evaluation — CI-gated</text>
+  <text x="866" y="756" font-size="11" fill="#EAF1FB">retrieval · generation · routing · guardrails · e2e</text>
+  <text x="866" y="772" font-size="10.5" fill="#9AAAC8">hermetic gates fail the build · real-run reports committed</text>
+
+  <!-- feedback: approvals + eval scores -> RL routing -->
+  <path d="M1200,636 L1222,636 L1222,330 L1188,330" fill="none" stroke="#4FE3C1" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#arr)"/>
+  <text x="1232" y="492" font-size="10" fill="#9AAAC8" text-anchor="middle" transform="rotate(-90 1232 492)">approve / reject + eval scores → reward → RL</text>
+
+  <!-- footer -->
+  <text x="40" y="822" font-size="11" fill="#9AAAC8">default runtime: 100% local · $0 · no API keys — cloud adapters optional · every decision audited · original diagram for the regulon repo</text>
+</svg>
