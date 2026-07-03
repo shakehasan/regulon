@@ -6,8 +6,8 @@ verification output. Each milestone is one branch and one PR.
 
 ## Milestones to v0.1.0
 
-- [ ] **M0 — Scaffold & repo governance.** Layout, tooling, CI with coverage gate and safety scan,
-      governance docs, ADR-001/002. *(in progress)*
+- [x] **M0 — Scaffold & repo governance.** Layout, tooling, CI with coverage gate and safety scan,
+      governance docs, ADR-001/002. *(done 2026-07-02)*
 - [ ] **M1 — Ingestion & knowledge base.** EDGAR fetch, bundled + synthetic corpora, chunking with
       metadata, redaction-on-ingest, SQLite store, `regulon ingest`. ADR-003.
 - [ ] **M2 — Hybrid retrieval.** Dense + BM25 + RRF + cross-encoder rerank + grading + cited evidence

@@ -170,7 +170,7 @@ once (bounded critic loop) or escalated to human review.
 
 | Milestone | Scope | Status |
 |---|---|---|
-| M0 | Scaffold & repo governance | In progress |
+| M0 | Scaffold & repo governance | ✅ Done |
 | M1 | Ingestion & knowledge base | Planned |
 | M2 | Hybrid retrieval | Planned |
 | M3 | Model gateway + real inference | Planned |
