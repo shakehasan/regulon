@@ -9,6 +9,7 @@ This document is the complete engineering specification for Regulon: scope, arch
 - **Repo name:** `regulon`
 - **Tagline (repo description):** "Governed multi-agent RAG platform: LangGraph agent orchestration, hybrid retrieval with cross-encoder reranking, adaptive multi-mode routing, RL-tuned route optimization, HITL approvals, RBAC, audit trails, and evaluation-gated CI. Local-first, open source."
 - **One-liner:** Regulon is an open-source reference platform for running multi-agent LLM systems the way regulated industries need them run — every answer grounded and cited, every decision routed and traced, every risky action approved by a human, every release gated by evals.
+- **Mission:** a solo-built open-source project for the GitHub community. The intention is big and simple: make a complete, governed multi-agent system something anyone can clone, run locally for $0, study end to end, and build on — sharing working knowledge in the open, with no business names and no commercial dependencies anywhere in the repo.
 - **Flagship reference app:** *Research Desk* — a multi-agent investment research workflow that ingests public SEC filings and produces citation-backed research briefs, with human approval required before a brief is finalized.
 - **License:** MIT. Copyright (c) 2026 **Shake MD Tareq Hasan**. Use this exact full name in `LICENSE`, `pyproject.toml` authors, package metadata, and the README author line.
 - **Author:** Shake MD Tareq Hasan (GitHub: shakehasan).
@@ -183,7 +184,7 @@ regulon/
 **M10 — Dashboard + launch polish.** Next.js dashboard (Runs/Run Detail/Approvals/Evals/Traces), README per §9 with architecture diagram + demo GIF placeholder + real screenshots, `docs/demo_script.md` (timed 2-minute walkthrough for recording), ROADMAP updated with post-1.0 items, release `v0.1.0` notes prepared.
 *Accept:* dashboard drives a full research→approve cycle against the real API; README passes the 60-second test; all Definition-of-Done checks below pass.
 
-## 9. README Specification (rich, full-layout — the README is the storefront and must outclass every other repo on this profile)
+## 9. README Specification (rich, full-layout — the README is the project's front door: any engineer in the community should be able to understand, trust, and run the platform from it)
 
 The README is a complete document with every section below, in this order. Richness comes from structure, original visuals, tables, diagrams, and real numbers — never from adjectives (Non-Negotiable #6 applies).
 

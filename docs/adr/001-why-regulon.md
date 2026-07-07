@@ -12,9 +12,10 @@ the fact, human sign-off before anything is finalized, access control on every m
 tamper-evident audit trails, and release gates driven by evaluation — not vibes. Public examples
 that treat these as first-class, integrated concerns (rather than bolt-ons) are scarce.
 
-There is also a demonstration goal: this repository should show, end to end and reproducibly on a
-laptop, how such a system is engineered — including its tradeoffs — without referencing any
-employer, client, or proprietary system.
+There is also a knowledge-sharing goal: this repository should show the GitHub community, end to
+end and reproducibly on a laptop, how such a system is engineered — including its tradeoffs —
+using only public-domain and synthetic data, with no business or proprietary references of any
+kind.
 
 ## Decision
 

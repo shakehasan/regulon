@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- README expanded: badges, table of contents, positioning, highlights, routing/governance/evaluation
+  sections, quickstart, configuration reference, annotated project layout, FAQ.
+- Architecture diagram: added a cross-cutting observability & eval-gates plane (OpenTelemetry ·
+  Prometheus · Grafana — all open source).
+- AGENTS.md rewritten as a full engineering handbook (repository map, commands, style, testing,
+  git workflow, ADR template, honesty rules, common pitfalls).
+- PLAN.md and ADR-001 reworded to state the community mission explicitly.
+
 ### Added
 
 - M0 scaffold: repository layout, `pyproject.toml`, Makefile (`setup lint format type test eval demo safety`),

@@ -150,16 +150,27 @@
   <text x="866" y="652" font-size="11" fill="#EAF1FB">hash-chained audit log — regulon audit verify</text>
   <text x="866" y="670" font-size="11" fill="#EAF1FB">approval queue · webhook notifier</text>
 
-  <!-- ================= observability ================= -->
-  <rect x="40" y="712" width="770" height="76" rx="10" fill="#131A30" stroke="#263255"/>
-  <text x="56" y="736" font-size="14" font-weight="700" fill="#4FE3C1">Observability</text>
-  <text x="56" y="758" font-size="11.5" fill="#EAF1FB">OTel spans → JSONL traces · HTML trace viewer · Prometheus /metrics · Grafana · per-run cost meter</text>
+  <!-- ================= cross-cutting observability & eval plane ================= -->
+  <rect x="40" y="712" width="1160" height="88" rx="10" fill="#101830" stroke="#4FE3C1" stroke-opacity="0.55"/>
+  <rect x="56" y="726" width="20" height="20" rx="5" fill="#4FE3C1"/>
+  <text x="66" y="741" font-size="12" font-weight="700" fill="#0B1020" text-anchor="middle">R</text>
+  <text x="86" y="741" font-size="13.5" font-weight="700" fill="#4FE3C1">Observability &amp; Eval Gates — OpenTelemetry · Prometheus · Grafana</text>
+  <text x="560" y="741" font-size="10.5" fill="#9AAAC8">cross-cutting plane — traces every layer and step above · all open source, $0</text>
 
-  <!-- ================= evaluation ================= -->
-  <rect x="850" y="712" width="350" height="76" rx="10" fill="#131A30" stroke="#263255"/>
-  <text x="866" y="736" font-size="14" font-weight="700" fill="#4FE3C1">Evaluation — CI-gated</text>
-  <text x="866" y="756" font-size="11" fill="#EAF1FB">retrieval · generation · routing · guardrails · e2e</text>
-  <text x="866" y="772" font-size="10.5" fill="#9AAAC8">hermetic gates fail the build · real-run reports committed</text>
+  <rect x="56" y="754" width="210" height="32" rx="8" fill="#0D1428" stroke="#4FE3C1" stroke-opacity="0.55"/>
+  <text x="161" y="774" font-size="10.5" fill="#EAF1FB" text-anchor="middle">Tracing — agent · tool · LLM</text>
+
+  <rect x="280" y="754" width="210" height="32" rx="8" fill="#0D1428" stroke="#4FE3C1" stroke-opacity="0.55"/>
+  <text x="385" y="774" font-size="10.5" fill="#EAF1FB" text-anchor="middle">Metrics &amp; Logs — Prometheus · Grafana</text>
+
+  <rect x="504" y="754" width="210" height="32" rx="8" fill="#0D1428" stroke="#4FE3C1" stroke-opacity="0.55"/>
+  <text x="609" y="774" font-size="10.5" fill="#EAF1FB" text-anchor="middle">Evals &amp; Guardrail Gates — fail CI</text>
+
+  <rect x="728" y="754" width="210" height="32" rx="8" fill="#0D1428" stroke="#4FE3C1" stroke-opacity="0.55"/>
+  <text x="833" y="774" font-size="10.5" fill="#EAF1FB" text-anchor="middle">Cost &amp; Token Monitoring — per run</text>
+
+  <rect x="952" y="754" width="210" height="32" rx="8" fill="#0D1428" stroke="#4FE3C1" stroke-opacity="0.55"/>
+  <text x="1057" y="774" font-size="10.5" fill="#EAF1FB" text-anchor="middle">Alerts — webhook notifications</text>
 
   <!-- feedback: approvals + eval scores -> RL routing -->
   <path d="M1200,636 L1222,636 L1222,330 L1188,330" fill="none" stroke="#4FE3C1" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#arr)"/>
