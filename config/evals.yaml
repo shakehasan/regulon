@@ -1,0 +1,107 @@
+# Regulon evaluation configuration: suites, judges, and CI gate thresholds.
+#
+# CONVENTION (AGENTS.md): every threshold lives here, never as a literal in code.
+# The hermetic tier (`make eval`) reads these gates and FAILS THE BUILD when a metric
+# regresses below its threshold.
+#
+# HONESTY NOTE: the numbers below are *declared gates* — the bar a change must clear.
+# They are NOT measured results. Measured numbers only ever appear in reports/, produced
+# by re-running the generating command. Gates are calibrated against real baselines in M7
+# (ADR-009) and tightened as the system improves; loosening one requires a PR that says why.
+
+judge:
+  # LLM-as-judge used by RAGAS metrics and the G-Eval rubric scorer.
+  # Local by default so evaluation costs $0 and needs no account.
+  provider: ollama
+  model: qwen2.5:7b-instruct
+  temperature: 0.0
+  seed: 20260101
+  max_retries: 2
+  # Agreement between judge scores and human labels on a held-out slice.
+  # Reported (not gated) until M7 establishes a baseline; see ADR-009.
+  agreement:
+    sample_size: 50
+    metric: cohens_kappa
+    report_only: true
+
+datasets:
+  version: v1
+  root: evals/datasets
+  seed: 20260101
+
+suites:
+  retrieval:
+    enabled: true
+    k_values: [1, 5, 10]
+    gates:
+      recall_at_10: 0.85
+      mrr: 0.70
+      ndcg_at_10: 0.75
+
+  generation_ragas:
+    enabled: true
+    # RAGAS metrics, computed with the local judge above (no hosted service required).
+    gates:
+      faithfulness: 0.90
+      answer_relevancy: 0.85
+      context_precision: 0.80
+      context_recall: 0.85
+
+  generation_geval:
+    enabled: true
+    # G-Eval style: rubric + chain-of-thought scoring on a 1-5 scale.
+    # Weights combine rubric scores into the composite used by the RL reward (M9).
+    rubrics:
+      citation_support:     { weight: 0.30, gate: 4.0 }
+      evidence_sufficiency: { weight: 0.20, gate: 3.8 }
+      numeric_accuracy:     { weight: 0.25, gate: 4.2 }
+      hallucination_free:   { weight: 0.15, gate: 4.5 }
+      compliance_tone:      { weight: 0.10, gate: 4.0 }
+
+  citations:
+    enabled: true
+    gates:
+      citation_precision: 0.95
+      citation_recall: 0.90
+      uncited_claim_rate_max: 0.05
+
+  routing:
+    enabled: true
+    gates:
+      routing_accuracy: 0.90
+      cost_efficiency_min: 0.80
+
+  guardrails:
+    enabled: true
+    # Adversarial suite: prompt injection, system-prompt leak, PII exfiltration, jailbreaks.
+    min_attacks: 30
+    gates:
+      block_rate: 0.95
+      false_positive_rate_max: 0.10
+
+  end_to_end:
+    enabled: true
+    gates:
+      structural_assertions_pass_rate: 1.00
+      brief_completion_rate: 0.95
+
+reporting:
+  # Real-run artifacts (`make eval-real`). Each report embeds a generation timestamp,
+  # config hash, and machine spec so every number is traceable.
+  output_dir: reports
+  include_config_hash: true
+  include_machine_spec: true
+
+experiment_tracking:
+  # Cross-run comparison ("did quality move between these two commits?") is done by an
+  # in-repo run store — no hosted service, no account, no API key, no cost. Every eval run
+  # is appended as JSONL keyed by git SHA + config hash; `regulon eval compare A B` prints
+  # the metric delta table and `regulon eval history` plots a trend.
+  #
+  # There is deliberately no hosted-backend option: a paid or account-gated service would
+  # make headline numbers unreproducible for anyone who did not sign up, which defeats the
+  # purpose of a learning resource (ADR-009).
+  store: local_jsonl
+  path: reports/eval_runs.jsonl
+  key_by: [git_sha, config_hash, dataset_version]
+  retain_runs: 200
