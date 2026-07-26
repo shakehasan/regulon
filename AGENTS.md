@@ -7,11 +7,19 @@ and record it as an ADR.
 
 ## What this project is
 
-Regulon is a solo-built, community-oriented open-source platform for **governed multi-agent RAG**:
-LangGraph orchestration, hybrid retrieval with citations, layered routing, RBAC, hash-chained
-audit trails, human-in-the-loop approval, and evaluation-gated CI. Default runtime is 100% local,
-$0, no API keys. It exists so the GitHub community can run, study, and reuse a complete example
-of multi-agent systems built to a regulated-industry bar.
+Regulon is a solo-built, community-oriented open-source **learning resource** for **governed
+multi-agent RAG**: LangGraph orchestration, hybrid retrieval with citations, layered routing,
+RBAC, hash-chained audit trails, human-in-the-loop approval, and evaluation-gated CI. It exists so
+anyone can run, study, and reuse a complete example of multi-agent systems built to a
+regulated-industry bar.
+
+Two constraints follow from that purpose and bind every contribution:
+
+- **Zero cost.** No accounts, API keys, sign-ups, free tiers, or metered services on any path a
+  user needs. If something can only be done with a paid tool, build the free local equivalent.
+- **No business, employer, client, or vendor-product names** anywhere in the repo. Open-source
+  project names (LangGraph, Prometheus, Ollama, RAGAS…) are fine — they are freely installable
+  software, not vendors.
 
 ## Repository map
 
@@ -97,6 +105,22 @@ Every architecturally significant choice gets `docs/adr/NNN-title.md`:
 
 "Significant" = affects more than one subsystem, is expensive to reverse, or pins a dependency,
 schema, or threshold philosophy.
+
+## Evaluation
+
+- Three layers, per [ADR-009](docs/adr/009-evaluation-stack-and-gates.md): **RAGAS** for standard
+  RAG metrics, an in-repo **G-Eval** rubric judge for citation support / numeric accuracy /
+  compliance tone, and an in-repo **local run store** for cross-commit comparison.
+- **No hosted or metered service may enter the evaluation path.** Every gate, metric, and committed
+  report must be reproducible offline, by a stranger, with no account and no API key — that is what
+  makes the published numbers verifiable. If a commercial tool would be convenient, build the free
+  local equivalent and record the tradeoff in an ADR.
+- Every threshold lives in `config/evals.yaml`. Those are **declared gates (targets)**, not
+  measured results. Loosening one requires a PR that explains why.
+- Judges are measuring instruments: pin the judge model, temperature 0, fixed seed, versioned
+  datasets. Report judge/human agreement before gating on it — never gate an uncalibrated judge.
+- Adding a metric means adding it to `config/evals.yaml`, its suite, and the README gates table
+  in the same PR.
 
 ## Reports and metrics — the honesty rule
 

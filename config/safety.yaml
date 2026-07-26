@@ -79,6 +79,15 @@ patterns:
     description: US SSN-shaped numbers (PII)
     regex: '\b\d{3}-\d{2}-\d{4}\b'
 
+  - name: commercial-vendor-name
+    description: >
+      Names of hosted/metered commercial services. Regulon is a free learning resource: it must
+      stay vendor-neutral and runnable at zero cost, so it ships no vendor integrations and names
+      none. Open-source project names (LangGraph, Prometheus, Ollama, RAGAS, Grafana...) are fine —
+      they are freely installable software, not vendors. If an extension point is genuinely needed,
+      describe it generically ("bring your own endpoint") rather than by brand.
+    regex: '(?i)\b(openai|anthropic|langsmith|langfuse|braintrust|humanloop|pinecone|datadog|wandb|weights\s*&\s*biases|(aws|amazon)\s+bedrock|azure[\s-]*openai)\b'
+
   - name: self-praise
     description: Banned self-praise vocabulary (show numbers, not adjectives)
     regex: '(?i)(\b(world-class|production-grade|state-of-the-art|battle-tested)\b|\bnot a toy\b|\bstands out\b)'

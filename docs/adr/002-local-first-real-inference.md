@@ -30,8 +30,10 @@ command.
 - **No fabricated metrics:** every number in `reports/` comes from re-running the generating
   command and carries a generation timestamp, config hash, and machine spec. If a number cannot
   be produced by running the code, it is not written down.
-- Cloud providers (`openai`, `anthropic`, `bedrock`, `azure-openai`) are optional adapters that
-  activate only when the corresponding environment key is present.
+- **No vendor adapters ship in this repo.** Naming commercial services would put business names in
+  a project meant purely as a free learning resource, and would imply a cost path. The gateway
+  instead exposes a generic `http` adapter interface so anyone can wire in an endpoint they already
+  have, without Regulon endorsing, integrating, or requiring one.
 
 ## Alternatives considered
 

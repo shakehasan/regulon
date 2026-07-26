@@ -133,7 +133,7 @@
   <text x="866" y="406" font-size="14" font-weight="700" fill="#4FE3C1">Model gateway</text>
   <text x="866" y="428" font-size="11.5" fill="#EAF1FB">ollama — local, $0 (default)</text>
   <text x="866" y="446" font-size="11.5" fill="#EAF1FB">deterministic — CI only, seeded</text>
-  <text x="866" y="464" font-size="11.5" fill="#EAF1FB">openai · anthropic · bedrock · azure — optional</text>
+  <text x="866" y="464" font-size="11.5" fill="#EAF1FB">generic http — bring your own endpoint</text>
   <text x="866" y="486" font-size="10.5" fill="#9AAAC8">registry: capabilities · context · latency · cost</text>
   <text x="866" y="502" font-size="10.5" fill="#9AAAC8">token + cost accounting on every call</text>
 
@@ -155,7 +155,7 @@
   <rect x="56" y="726" width="20" height="20" rx="5" fill="#4FE3C1"/>
   <text x="66" y="741" font-size="12" font-weight="700" fill="#0B1020" text-anchor="middle">R</text>
   <text x="86" y="741" font-size="13.5" font-weight="700" fill="#4FE3C1">Observability &amp; Eval Gates — OpenTelemetry · Prometheus · Grafana</text>
-  <text x="560" y="741" font-size="10.5" fill="#9AAAC8">cross-cutting plane — traces every layer and step above · all open source, $0</text>
+  <text x="560" y="741" font-size="10.5" fill="#9AAAC8">cross-cutting plane — traces every layer and step above · all open source · $0 · no accounts</text>
 
   <rect x="56" y="754" width="210" height="32" rx="8" fill="#0D1428" stroke="#4FE3C1" stroke-opacity="0.55"/>
   <text x="161" y="774" font-size="10.5" fill="#EAF1FB" text-anchor="middle">Tracing — agent · tool · LLM</text>
@@ -164,7 +164,7 @@
   <text x="385" y="774" font-size="10.5" fill="#EAF1FB" text-anchor="middle">Metrics &amp; Logs — Prometheus · Grafana</text>
 
   <rect x="504" y="754" width="210" height="32" rx="8" fill="#0D1428" stroke="#4FE3C1" stroke-opacity="0.55"/>
-  <text x="609" y="774" font-size="10.5" fill="#EAF1FB" text-anchor="middle">Evals &amp; Guardrail Gates — fail CI</text>
+  <text x="609" y="774" font-size="10.5" fill="#EAF1FB" text-anchor="middle">Evals — RAGAS · G-Eval · fail CI</text>
 
   <rect x="728" y="754" width="210" height="32" rx="8" fill="#0D1428" stroke="#4FE3C1" stroke-opacity="0.55"/>
   <text x="833" y="774" font-size="10.5" fill="#EAF1FB" text-anchor="middle">Cost &amp; Token Monitoring — per run</text>
@@ -177,5 +177,5 @@
   <text x="1232" y="492" font-size="10" fill="#9AAAC8" text-anchor="middle" transform="rotate(-90 1232 492)">approve / reject + eval scores → reward → RL</text>
 
   <!-- footer -->
-  <text x="40" y="822" font-size="11" fill="#9AAAC8">default runtime: 100% local · $0 · no API keys — cloud adapters optional · every decision audited · original diagram for the regulon repo</text>
+  <text x="40" y="822" font-size="11" fill="#9AAAC8">runs 100% local · $0 · no accounts, no API keys, no paid services — every decision audited · a free, open learning resource</text>
 </svg>

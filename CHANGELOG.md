@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Evaluation stack design: **RAGAS** (standard RAG metrics) + an in-repo **G-Eval** rubric judge,
+  both running on the local judge model, plus an in-repo **local run store** (`eval_runs.jsonl` +
+  `regulon eval compare|history`) for cross-commit comparison. Every layer is free and offline —
+  no hosted service, no account, no API key.
+- `config/evals.yaml`: judge settings, dataset version, and every CI gate threshold declared as
+  config (targets, not measured results), calibrated against real baselines in M7.
+- ADR-009 recording the evaluation stack decision and why experiment tracking is built rather than
+  bought.
+- Unit tests guarding the eval config: gate ranges, G-Eval rubric weights summing to 1.0,
+  deterministic judge settings, local-only run store, and a check that the config references no
+  API key, token, endpoint, or account — the zero-cost promise enforced mechanically.
+- Safety-scan rule rejecting commercial vendor names, so the repo stays vendor-neutral and free
+  by construction rather than by vigilance.
+
 ### Changed
 
 - README expanded: badges, table of contents, positioning, highlights, routing/governance/evaluation

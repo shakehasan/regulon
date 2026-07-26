@@ -23,8 +23,16 @@ Regulon is an open-source platform for running multi-agent LLM systems the way r
 industries need them run. Most agent frameworks stop at orchestration; Regulon treats the
 **governance control plane as the product**: grounded and cited answers, explainable routing,
 role-based access, tamper-evident audit trails, human-in-the-loop approval, and evaluation gates
-wired into CI. It is a solo-built community project — the goal is that any engineer can clone it,
-run a real multi-agent system locally for $0, study how it is engineered, and reuse the parts.
+wired into CI.
+
+**This is a learning resource, built in the open and free forever.** It exists so that anyone —
+students, self-taught engineers, teams evaluating agent architectures — can clone a complete
+governed multi-agent system, run it end to end on their own laptop, read how every part works,
+and take the pieces they need into their own projects. Use it to learn, teach, fork, or extend it.
+
+**It costs nothing to run.** No accounts, no API keys, no sign-ups, no free tiers to exhaust, no
+paid dependency anywhere. Every component is open source and runs locally: the models (via
+Ollama), the vector and keyword indexes, the evaluation judges, the tracing, and the metrics.
 
 **What is different here:**
 
@@ -78,14 +86,14 @@ Each capability lands in the milestone shown; ✅ means merged and CI-verified.
 3. SEC EDGAR ingestion + clearly-labeled synthetic corpora; PII redaction at ingest — M1
 4. Hybrid retrieval: dense (bge-small) + BM25 → Reciprocal Rank Fusion → cross-encoder reranking → relevance grading — M2
 5. Evidence bundles with exact source spans and stable citation IDs; groundedness verification — M2
-6. Model gateway: Ollama by default ($0, local), `deterministic` provider for hermetic CI, optional cloud adapters — M3
+6. Model gateway: Ollama by default ($0, local), `deterministic` provider for hermetic CI, generic `http` adapter for any endpoint you bring — M3
 7. Token and cost accounting on every model call, surfaced per run — M3
 8. LangGraph supervisor + 5 specialist agents with typed Pydantic state and enforced budgets — M4
 9. Bounded critic revision loop and fail-closed guardrail nodes — M4
 10. Six routing strategies emitting auditable `RouteDecision` records — M5
 11. RBAC (`analyst` / `reviewer` / `admin`), YAML policy engine, hash-chained audit log with a verify command — M6
 12. HITL approval queue driven by REST, CLI, and MCP — any MCP client can operate Regulon — M6
-13. Evaluation program: retrieval, generation, routing, guardrail (30+ attack suite), and end-to-end gates that fail CI — M7
+13. Evaluation program: RAGAS metrics + a G-Eval rubric judge + a local run store for cross-commit comparison (all $0, no accounts) with retrieval, routing, guardrail (30+ attacks), and end-to-end gates that fail CI — M7
 14. OpenTelemetry traces, Prometheus metrics, Grafana dashboard, per-run cost meter; Docker + reference k8s — M8
 15. Offline RL (LinUCB + epsilon-greedy) tuning routing preferences from human + eval feedback, behind a flag — M9
 
@@ -134,7 +142,7 @@ flowchart TB
     subgraph gateway["Model gateway"]
         OLL["ollama (default, local)"]
         DET["deterministic (CI only)"]
-        CLOUD["openai / anthropic / bedrock /<br/>azure-openai (optional)"]
+        HTTPA["generic http adapter<br/>(bring your own endpoint)"]
     end
 
     subgraph retrieval["Retrieval"]
@@ -205,7 +213,7 @@ only a `reviewer` role can mark it `final`.
 | Routing | `src/regulon/routing/` | Rule / semantic / cost-aware / policy routing, fallback chains, semantic cache, RL optimizer | M5, M9 |
 | Governance | `src/regulon/governance/` | RBAC, policy engine, output redaction, hash-chained audit log, approval queue, webhook notifier | M6 |
 | API & MCP | `src/regulon/api/`, `src/regulon/mcp/` | FastAPI routers + auth dependencies; MCP tools (`ingest`, `research`, `retrieve`, `review_list`, `approve`) | M6 |
-| Evaluation | `src/regulon/evals/` | Golden datasets, RAGAS + local LLM-judge, routing & guardrail suites, hard CI gates | M2, M7 |
+| Evaluation | `src/regulon/evals/` | Versioned golden datasets, RAGAS metrics, G-Eval rubric judge, routing & guardrail suites, hard CI gates | M2, M7 |
 | Observability | `src/regulon/observability/` | OTel spans, JSONL trace export + HTML viewer, Prometheus metrics, cost meter | M8 |
 | CLI | `src/regulon/cli/` | `regulon ingest · retrieve · ask · research · review · audit verify · trace view` | M1–M8 |
 | Dashboard | `apps/dashboard/` | Runs, run detail, approvals, evals, traces (talks only to the API) | M10 |
@@ -286,18 +294,58 @@ the audit chain and as a feedback signal for RL routing.
 
 ## Evaluation
 
-Two tiers, per [ADR-002](docs/adr/002-local-first-real-inference.md):
+Releases are gated by measured quality, not judgement calls. The stack has three layers —
+two required and fully local, one optional — described in
+[ADR-009](docs/adr/009-evaluation-stack-and-gates.md).
+
+| Layer | Tool | Answers | Cost |
+|---|---|---|---|
+| RAG metrics | **RAGAS** (Apache-2.0) | Is the answer faithful to retrieved context, relevant, and was the right context retrieved? | $0 — runs on the local judge model |
+| Rubric judging | **G-Eval** (published method, implemented in-repo) | Is every claim genuinely supported by its citation? Are the numbers right? Did compliance framing survive? | $0 — local judge, temperature 0, fixed seed |
+| Experiment tracking | **Local run store** (in-repo) | How did quality move between two commits, and which runs regressed? | $0 — a JSONL file and two CLI commands |
+
+**There is no hosted evaluation service anywhere in this stack, and no free tier to sign up for.**
+Every run appends its metrics, git SHA, config hash, and machine spec to
+`reports/eval_runs.jsonl`; `regulon eval compare A B` prints the delta between any two runs and
+`regulon eval history` shows the trend. Hosted platforms have nicer dashboards, but all of them
+need an account and most meter usage — which would put a paywall between a learner and the numbers
+this repo publishes. See [ADR-009](docs/adr/009-evaluation-stack-and-gates.md) for the full
+build-not-buy reasoning.
+
+### Suites and gates
+
+Thresholds are declared in [`config/evals.yaml`](config/evals.yaml) — the bar a change must clear,
+enforced by CI. They are **targets, not results**; measured numbers live only in `reports/`, and
+they are calibrated against real baselines in M7.
+
+| Suite | Metrics | Declared gate |
+|---|---|---|
+| Retrieval | recall@10 · MRR · nDCG@10 | ≥ 0.85 · ≥ 0.70 · ≥ 0.75 |
+| Generation — RAGAS | faithfulness · answer relevancy · context precision · context recall | ≥ 0.90 · ≥ 0.85 · ≥ 0.80 · ≥ 0.85 |
+| Generation — G-Eval | citation support · evidence sufficiency · numeric accuracy · hallucination-free · compliance tone (1–5, weighted) | ≥ 4.0 · ≥ 3.8 · ≥ 4.2 · ≥ 4.5 · ≥ 4.0 |
+| Citations | citation precision · citation recall · uncited-claim rate | ≥ 0.95 · ≥ 0.90 · ≤ 0.05 |
+| Routing | routing accuracy vs labeled routes · cost-efficiency | ≥ 0.90 · ≥ 0.80 |
+| Guardrails | block rate over 30+ injection/leak/PII attacks · false-positive rate | ≥ 0.95 · ≤ 0.10 |
+| End-to-end | structural assertions · brief completion rate | 100% · ≥ 0.95 |
+
+### How G-Eval scoring works here
+
+Each rubric gets a prompt stating the criterion, the evidence bundle, and the draft claim; the
+judge reasons step by step, then emits a 1–5 score. Scores are combined using the weights in
+`config/evals.yaml` into a composite that feeds both the CI gate and the RL routing reward (M9).
+Because an LLM judge is itself a measuring instrument, a held-out slice is human-labeled and
+judge/human agreement (Cohen's kappa) is reported in `docs/eval_methodology.md` — **reported, not
+gated**, until M7 establishes a baseline. Gating on an uncalibrated instrument would be theater.
+
+### Two tiers
 
 | Tier | Command | Model | Where | Purpose |
 |---|---|---|---|---|
 | Hermetic | `make eval` | `deterministic` (seeded, no network) | CI, every push | **Hard gates — regressions fail the build** |
 | Real | `make eval-real` | local model via Ollama | maintainer machine | Committed reports in `reports/` with timestamp, config hash, machine spec |
 
-Suites: retrieval (recall@k, MRR, nDCG) · generation (faithfulness, citation precision/recall,
-answer relevance — RAGAS + a local LLM-judge) · routing accuracy & cost-efficiency · a 30+
-prompt-injection/leak adversarial suite with block-rate reporting · end-to-end golden briefs.
-Thresholds are pinned in `config/` and recorded in ADR-009 as each suite lands (M2 retrieval,
-M7 full program). **No number appears in this repo unless a command produced it.**
+**No number appears in this repo unless a command produced it.** Retrieval gates land with M2; the
+full program lands with M7.
 
 ## Quickstart
 
@@ -325,17 +373,24 @@ The demo always runs a real local model — never canned output.
 
 ## Configuration
 
-All tunables live in [`config/regulon.yaml`](config/regulon.yaml); environment variables with the
-`REGULON_` prefix override the file. No magic numbers in code.
+All tunables live under [`config/`](config/); environment variables with the `REGULON_` prefix
+override the files. No magic numbers in code.
+
+| File | Contains |
+|---|---|
+| [`config/regulon.yaml`](config/regulon.yaml) | Runtime settings; grows with each milestone (model registry, budgets, policies) |
+| [`config/evals.yaml`](config/evals.yaml) | Judge model, dataset version, and every CI gate threshold |
+| [`config/safety.yaml`](config/safety.yaml) | Public-safety denylist patterns and exclusions |
 
 | Variable | Default | Purpose |
 |---|---|---|
 | `REGULON_ENVIRONMENT` | `dev` | Runtime environment name (`dev` / `ci` / `prod`) |
 | `REGULON_DATA_DIR` | `./data` | Root for local data (knowledge base, queues, audit log) |
 | `REGULON_CONFIG_FILE` | `config/regulon.yaml` | Alternate config file path |
+| `OLLAMA_HOST` | `http://localhost:11434` | Local model server (M3+) |
 
-Sections grow milestone by milestone (model registry, thresholds, budgets, policies); each ships
-with its milestone and is documented here. See [`.env.example`](.env.example).
+See [`.env.example`](.env.example). **No environment variable in this project is an API key you
+have to obtain** — the entire default path runs without accounts, keys, or payment.
 
 ## Project layout
 
@@ -343,7 +398,7 @@ with its milestone and is documented here. See [`.env.example`](.env.example).
 regulon/
 ├── PLAN.md                # the full public build specification
 ├── AGENTS.md              # engineering conventions for contributors & coding agents
-├── config/                # all tunables: runtime config + safety denylist
+├── config/                # all tunables: runtime · eval gates · safety denylist
 ├── docs/
 │   ├── adr/               # architecture decision records (ADR-001, ADR-002, ...)
 │   └── assets/            # original diagrams for this repo
@@ -358,7 +413,7 @@ regulon/
 │   ├── routing/           # M5  rules · semantic · cost · policy · fallback · cache · rl/
 │   ├── governance/        # M6  rbac · policies · audit chain · approval queue
 │   ├── api/ · mcp/ · cli/ # M6  FastAPI · MCP server · Typer CLI (grows M1→M8)
-│   ├── evals/             # M7  suites · judges · datasets · gates
+│   ├── evals/             # M7  suites · ragas + geval judges · datasets · gates
 │   └── observability/     # M8  otel · metrics · trace viewer
 ├── apps/dashboard/        # M10 Next.js dashboard
 ├── data/samples/          # public-domain filing excerpts + SYNTHETIC_ docs (M1)
@@ -396,16 +451,32 @@ public issues — see [SECURITY.md](SECURITY.md). All participation is covered b
 ## FAQ
 
 **Why local-first?** So anyone can run the whole platform without paid services, API keys, or
-accounts — reproducibility is the point. Cloud adapters exist but are optional. See
-[ADR-002](docs/adr/002-local-first-real-inference.md).
+accounts — reproducibility is the point, and a learner should never hit a paywall partway through.
+See [ADR-002](docs/adr/002-local-first-real-inference.md).
 
 **Why is there a `deterministic` provider in CI?** Hermetic tests and eval gates need to run
 without a model server and produce identical results every time. It is never the default and never
 used in demos or committed reports.
 
-**Can I use cloud models?** Yes — set the relevant API key and the gateway's `openai`,
-`anthropic`, `bedrock`, or `azure-openai` adapters activate. The router treats them as candidates
-with their own cost/latency metadata.
+**Do I need an account anywhere to run this?** No — not for the platform, not for evaluation, not
+for tracing. There is no sign-up, no free tier to exhaust, and no paid dependency. Every tool in
+the stack is open source and runs on your machine.
+
+**Why both RAGAS and G-Eval?** They answer different questions. RAGAS gives standard, comparable
+RAG metrics (faithfulness, relevancy, context precision/recall). G-Eval rubrics cover what RAGAS
+does not: whether a cited span actually supports its claim, whether extracted figures are
+arithmetically correct, and whether compliance framing survived. Both run on the local judge model.
+See [ADR-009](docs/adr/009-evaluation-stack-and-gates.md).
+
+**Why build experiment tracking instead of using a platform?** Hosted trackers have better UIs,
+but they need an account and most meter usage — so anyone without a subscription could not verify
+this repo's published numbers. A JSONL run store plus `regulon eval compare` answers the real
+question ("did this commit regress?") for free, and keeps the numbers reproducible by anyone.
+
+**Can I use a different model?** Any model Ollama can run works out of the box — just change the
+model name in config. Beyond that, the gateway ships a generic `http` adapter you can point at any
+endpoint you already have access to; the router treats it as another candidate with its own
+cost/latency metadata. Regulon itself bundles no vendor integrations and requires no subscription.
 
 **Why SEC filings as the demo domain?** They are public-domain, information-dense, and realistic
 for a governed research workflow — and they keep the repo free of proprietary data. The only other
@@ -424,7 +495,14 @@ a set of agents governed by one control plane.
 
 ## Disclaimer
 
-Regulon is a research and education tool. Nothing it produces is investment advice.
+Regulon is built for **learning and education**. It is a reference implementation for studying how
+governed multi-agent systems are engineered — not a commercial product, not a managed service, and
+not affiliated with any company. Nothing it produces is investment advice. The SEC filings it
+reads are public-domain documents used purely as realistic study material, alongside clearly
+labeled synthetic documents.
+
+You are free to use it for learning, teaching, research, and to build on for your own work — the
+MIT license below places no restrictions and no cost on any of that.
 
 ## License
 

@@ -9,7 +9,7 @@ This document is the complete engineering specification for Regulon: scope, arch
 - **Repo name:** `regulon`
 - **Tagline (repo description):** "Governed multi-agent RAG platform: LangGraph agent orchestration, hybrid retrieval with cross-encoder reranking, adaptive multi-mode routing, RL-tuned route optimization, HITL approvals, RBAC, audit trails, and evaluation-gated CI. Local-first, open source."
 - **One-liner:** Regulon is an open-source reference platform for running multi-agent LLM systems the way regulated industries need them run — every answer grounded and cited, every decision routed and traced, every risky action approved by a human, every release gated by evals.
-- **Mission:** a solo-built open-source project for the GitHub community. The intention is big and simple: make a complete, governed multi-agent system something anyone can clone, run locally for $0, study end to end, and build on — sharing working knowledge in the open, with no business names and no commercial dependencies anywhere in the repo.
+- **Mission:** a solo-built open-source **learning resource** for the GitHub community. The intention is big and simple: make a complete, governed multi-agent system something anyone can clone, run locally, study end to end, and build on — so people can learn from it and enhance their own work. Hard constraints that follow from this: **zero cost to run** (no accounts, no API keys, no free tiers, no paid or metered dependency anywhere on the default path), and **no business, employer, client, or vendor-product names** in the repo. Where a hosted commercial tool would be the convenient choice, build the free local equivalent instead and record why in an ADR.
 - **Flagship reference app:** *Research Desk* — a multi-agent investment research workflow that ingests public SEC filings and produces citation-backed research briefs, with human approval required before a brief is finalized.
 - **License:** MIT. Copyright (c) 2026 **Shake MD Tareq Hasan**. Use this exact full name in `LICENSE`, `pyproject.toml` authors, package metadata, and the README author line.
 - **Author:** Shake MD Tareq Hasan (GitHub: shakehasan).
@@ -64,7 +64,7 @@ A `routing/` subsystem with layered strategies, each independently testable:
 4. **Policy routing** — sensitive-topic tasks forced to stricter pipelines (higher groundedness threshold + mandatory HITL).
 5. **Fallback chains** — timeout/error/low-confidence cascades to next candidate; all hops recorded.
 6. **Semantic cache** — embedding-similarity cache for repeated queries with hit/miss metrics and measured cost savings.
-Model gateway providers: `ollama` (default), `openai`, `anthropic`, `bedrock`, `azure-openai` (env-key optional), `deterministic` (CI only). Every route decision emits a `RouteDecision` record: candidates, scores, chosen arm, reason, cost estimate.
+Model gateway providers: `ollama` (default, local, free), `deterministic` (CI only), plus a documented generic `http` adapter interface so a user can wire in any endpoint they already have. **No vendor-specific adapters ship in this repo** — they would name commercial services and imply a cost, and the mission (§1) requires the project stay free and vendor-neutral. Every route decision emits a `RouteDecision` record: candidates, scores, chosen arm, reason, cost estimate (0 for local).
 
 ### 4.5 RL-tuned routing (differentiator — implement carefully, scope tightly)
 - **Feedback store:** every run logs (task features, route decision, eval scores, human approve/reject, latency, cost).
@@ -84,14 +84,17 @@ Model gateway providers: `ollama` (default), `openai`, `anthropic`, `bedrock`, `
 ### 4.7 Evaluation (a headline pillar — this must be unusually strong)
 `evals/` with versioned golden datasets (synthetic + bundled-filing Q&A written for this repo):
 - **Retrieval:** recall@k, MRR, nDCG on labeled query→chunk goldens.
-- **Generation:** faithfulness/groundedness, citation precision/recall, answer relevance — RAGAS where applicable + a local LLM-as-judge implementation (G-Eval-style rubric prompts, judge = local model) with judge-agreement spot-check documented.
+- **Generation — RAGAS (required, OSS):** `faithfulness`, `answer_relevancy`, `context_precision`, `context_recall`, configured to use the local judge model and local embeddings so the metrics cost $0 and need no account.
+- **Generation — G-Eval (required, in-repo):** rubric + chain-of-thought judging on a 1–5 scale for what RAGAS does not cover — citation support, evidence sufficiency, numeric accuracy, hallucination-free, compliance tone. Rubrics and weights live in `config/evals.yaml`; the weighted composite feeds the CI gate and the RL reward (§4.5). Judge = local model, temperature 0, fixed seed. Judge/human agreement (Cohen's kappa) on a held-out slice is **reported, not gated**, until M7 sets a baseline.
+- **Citations:** citation precision/recall and uncited-claim rate as first-party checks.
+- **Experiment tracking — local run store (in-repo, free):** every eval run appends git SHA, config hash, dataset version, metrics, machine spec, and timestamp to `reports/eval_runs.jsonl`; `regulon eval compare A B` prints a metric-delta table and `regulon eval history` shows the trend. Human labels for judge calibration come from the approval-queue feedback store (§4.6). **No hosted tracking platform** — every such option requires an account and most meter usage, which would make committed numbers unverifiable for non-subscribers and put a cost between a learner and the project. See ADR-009.
 - **Routing:** routing accuracy vs labeled expected routes; cost-efficiency metric.
 - **Guardrails:** adversarial suite (30+ prompt-injection/leak/PII attacks) with block-rate report.
 - **End-to-end:** golden briefs with structural + citation assertions.
-Two tiers: `make eval` (hermetic, deterministic provider, runs in CI, **hard thresholds fail the build**) and `make eval-real` (real local model; writes `reports/eval_report.md` + `reports/latency_cost.md`; committed to the repo; README links them). CI also validates that committed reports match the current eval schema.
+Two tiers: `make eval` (hermetic, deterministic provider, runs in CI, **hard thresholds fail the build**) and `make eval-real` (real local model; writes `reports/eval_report.md` + `reports/latency_cost.md`; committed to the repo; README links them). CI also validates that committed reports match the current eval schema. **All thresholds live in `config/evals.yaml`** as declared gates (targets, not results) and are calibrated against real baselines in M7.
 
 ### 4.8 Observability & ops
-- OpenTelemetry spans across graph nodes, retrieval, gateway calls; JSONL trace export + optional OTLP endpoint; `regulon trace view <run_id>` renders a local HTML timeline.
+- OpenTelemetry spans across graph nodes, retrieval, gateway calls; JSONL trace export + optional OTLP endpoint; `regulon trace view <run_id>` renders a local HTML timeline. No hosted tracing backend: the local viewer plus the eval run store (§4.7) cover trace and experiment inspection at zero cost.
 - Prometheus `/metrics` (request counts, latencies, token usage, cache hit rate, guardrail blocks, approval throughput); Grafana dashboard JSON committed under `ops/grafana/`.
 - **Cost meter:** per-call token accounting × model price registry → per-run cost summary in API response and reports.
 - Docker: multi-stage `Dockerfile`; `docker-compose.yml` with profiles `core`, `pgvector`, `queue` (Celery+Redis), `observability` (Prometheus+Grafana).
@@ -103,7 +106,7 @@ Next.js + TypeScript app under `apps/dashboard/`: pages for Runs (status, cost, 
 
 ## 5. Tech Stack (pinned decisions)
 
-Python 3.11+ · Pydantic v2 · FastAPI + Uvicorn · Typer CLI · LangGraph (+ LangChain core where useful) · sentence-transformers (bge-small embeddings, ms-marco cross-encoder) · rank-bm25 · SQLite default / Postgres+pgvector profile · Ollama default model `qwen2.5:7b-instruct` with `llama3.2:3b` documented as the low-RAM alternative (verify current best small instruct models at build time and pin in one config constant) · RAGAS · OpenTelemetry SDK · Prometheus client · Celery+Redis (optional profile) · MCP Python SDK · pytest + coverage · ruff + mypy (strict on `src/`) · pre-commit · Next.js/TypeScript dashboard · Docker/kustomize/Locust.
+Python 3.11+ · Pydantic v2 · FastAPI + Uvicorn · Typer CLI · LangGraph (+ LangChain core where useful) · sentence-transformers (bge-small embeddings, ms-marco cross-encoder) · rank-bm25 · SQLite default / Postgres+pgvector profile · Ollama default model `qwen2.5:7b-instruct` with `llama3.2:3b` documented as the low-RAM alternative (verify current best small instruct models at build time and pin in one config constant) · RAGAS (local judge + local embeddings) · in-repo G-Eval rubric judge · in-repo local eval run store · OpenTelemetry SDK · Prometheus client · Celery+Redis (optional profile) · MCP Python SDK · pytest + coverage · ruff + mypy (strict on `src/`) · pre-commit · Next.js/TypeScript dashboard · Docker/kustomize/Locust.
 
 ## 6. Repository Layout
 
@@ -160,7 +163,7 @@ regulon/
 **M2 — Hybrid retrieval.** Dense + BM25 + RRF + cross-encoder rerank + relevance grading + evidence bundles with citations; pgvector store behind the same interface + compose profile; retrieval eval suite with recall@k/MRR/nDCG.
 *Accept:* `regulon retrieve "<query>"` returns cited evidence; `make eval` retrieval gates pass; ADR-004 (hybrid fusion & reranking choices).
 
-**M3 — Model gateway + real inference.** Provider adapters (ollama/openai/anthropic/bedrock/azure/deterministic), model registry with cost/latency metadata, token & cost accounting, structured-output helper, health checks.
+**M3 — Model gateway + real inference.** Provider adapters (`ollama`, `deterministic`, generic `http`), model registry with cost/latency metadata, token & cost accounting, structured-output helper, health checks.
 *Accept:* with Ollama running, `regulon ask "<q>"` streams a real grounded answer with citations and prints cost/latency; hermetic tests pass without Ollama; ADR-005 (gateway design).
 
 **M4 — Agents & orchestration.** LangGraph supervisor + 5 specialists, typed state, budgets, bounded critic loop, HITL checkpoint node, structured run events, `regulon research "<task>"` producing a draft brief into the approval queue.
@@ -172,8 +175,8 @@ regulon/
 **M6 — Governance control plane.** RBAC + token auth, policy engine, output redaction, hash-chained audit log + `audit verify`, approval REST+CLI, webhook notifier, optional Celery profile, MCP server, FastAPI app tying it together, threat_model.md.
 *Accept:* role-based access enforced in API tests; audit chain verifies; approve/reject flow works end-to-end incl. via MCP; adversarial guardrail suite ≥ target block rate; ADR-008 (audit & HITL design).
 
-**M7 — Evaluation program.** Full suites per §4.7, golden datasets, LLM-judge, CI hard gates, `make eval-real` producing committed `reports/eval_report.md` + `reports/latency_cost.md`, `docs/eval_methodology.md`.
-*Accept:* CI fails if any gate regresses; committed reports exist with real numbers + config hash; README links them; ADR-009 (eval gates & thresholds).
+**M7 — Evaluation program.** Full suites per §4.7 (RAGAS + G-Eval judges, retrieval, citations, routing, guardrails, end-to-end), versioned golden datasets, CI hard gates read from `config/evals.yaml`, threshold calibration against real baselines, local eval run store + `regulon eval compare|history`, `make eval-real` producing committed `reports/eval_report.md` + `reports/latency_cost.md`, `docs/eval_methodology.md` incl. judge/human agreement.
+*Accept:* CI fails if any gate regresses; committed reports exist with real numbers + config hash; the entire suite runs offline with no account or API key; README links the reports; ADR-009 (eval stack & gates) updated with calibrated thresholds.
 
 **M8 — Observability & ops.** OTel spans, trace HTML viewer, Prometheus metrics, Grafana dashboard JSON, Dockerfile + compose profiles, k8s manifests (kubeconform in CI), Locust + `make bench` → `reports/load_test.md`.
 *Accept:* `docker compose --profile observability up` shows live dashboard; bench report committed from a real run; ADR-010 (observability model).
