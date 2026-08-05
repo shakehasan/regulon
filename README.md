@@ -11,7 +11,8 @@ every risky action approved by a human, every release gated by evals.**
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](pyproject.toml)
 [![Orchestration](https://img.shields.io/badge/orchestration-LangGraph-4FE3C1.svg)](https://github.com/langchain-ai/langgraph)
 [![Runtime](https://img.shields.io/badge/default_runtime-100%25_local_·_%240-4FE3C1.svg)](docs/adr/002-local-first-real-inference.md)
-[![Coverage gate](https://img.shields.io/badge/coverage_gate-%E2%89%A580%25-brightgreen.svg)](Makefile)
+[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/shakehasan/regulon/main/.github/badges/coverage.json)](Makefile)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 
 **Author:** Shake MD Tareq Hasan · GitHub [@shakehasan](https://github.com/shakehasan)
 
@@ -58,6 +59,7 @@ Ollama), the vector and keyword indexes, the evaluation judges, the tracing, and
 - [Quickstart](#quickstart)
 - [Configuration](#configuration)
 - [Project layout](#project-layout)
+- [Glossary](#glossary)
 - [Milestones](#milestones)
 - [Contributing · Security · Code of Conduct](#contributing--security--code-of-conduct)
 - [FAQ](#faq)
@@ -401,8 +403,9 @@ regulon/
 ├── config/                # all tunables: runtime · eval gates · safety denylist
 ├── docs/
 │   ├── adr/               # architecture decision records (ADR-001, ADR-002, ...)
-│   └── assets/            # original diagrams for this repo
-├── scripts/               # public_safety_scan.py + data tooling (M1)
+│   ├── assets/            # original diagrams for this repo
+│   └── GLOSSARY.md        # plain-language definitions for every term used here
+├── scripts/               # public_safety_scan.py · gen_coverage_badge.py + data tooling (M1)
 ├── src/regulon/
 │   ├── core/              # ✅ config · ids · events · errors · hashing · clock
 │   ├── ingestion/         # M1  loaders · edgar client · chunkers · redaction
@@ -421,6 +424,12 @@ regulon/
 ├── reports/               # M7+ committed real-run artifacts (never hand-written)
 └── tests/                 # unit · integration · adversarial
 ```
+
+## Glossary
+
+New to some of these terms — RRF, cross-encoder reranking, LinUCB, hash chain, G-Eval? A plain-
+language definition for every one of them, in the order a newcomer would meet them, lives in
+[docs/GLOSSARY.md](docs/GLOSSARY.md). This project is meant to be learned from, not just run.
 
 ## Milestones
 

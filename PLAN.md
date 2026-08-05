@@ -114,9 +114,9 @@ Python 3.11+ · Pydantic v2 · FastAPI + Uvicorn · Typer CLI · LangGraph (+ La
 regulon/
 ├── AGENTS.md                  # engineering conventions for contributors and coding agents (generated in M0 from §7)
 ├── README.md                  # per §9 spec
-├── LICENSE  CHANGELOG.md  CONTRIBUTING.md  SECURITY.md  CODE_OF_CONDUCT.md  ROADMAP.md
-├── .github/ (workflows: ci.yml, safety.yml, release.yml; ISSUE_TEMPLATE; PULL_REQUEST_TEMPLATE.md)
-├── pyproject.toml  Makefile  .env.example  .pre-commit-config.yaml
+├── LICENSE  CHANGELOG.md  CONTRIBUTING.md  SECURITY.md  CODE_OF_CONDUCT.md  ROADMAP.md  CITATION.cff
+├── .github/ (workflows: ci.yml, safety.yml, release.yml; dependabot.yml; CODEOWNERS; badges/coverage.json; ISSUE_TEMPLATE; PULL_REQUEST_TEMPLATE.md)
+├── pyproject.toml  Makefile  .env.example  .editorconfig  .pre-commit-config.yaml
 ├── src/regulon/
 │   ├── core/          # config, ids, events, errors, hashing, clock
 │   ├── ingestion/     # loaders, edgar client, chunkers, redaction
@@ -133,10 +133,10 @@ regulon/
 │   └── cli/           # typer app
 ├── apps/dashboard/    # Next.js
 ├── data/samples/      # public-domain filing excerpts + SYNTHETIC_ docs
-├── docs/ (architecture.md, adr/, runbooks/, threat_model.md, eval_methodology.md, demo_script.md)
+├── docs/ (architecture.md, adr/, runbooks/, threat_model.md, eval_methodology.md, demo_script.md, GLOSSARY.md)
 ├── ops/ (grafana/, k8s/, locust/)
 ├── reports/           # committed real-run artifacts (eval, latency_cost, load_test, rl_routing)
-├── scripts/ (public_safety_scan.py, gen_synthetic_corpus.py, fetch_edgar_sample.py)
+├── scripts/ (public_safety_scan.py, gen_coverage_badge.py, gen_synthetic_corpus.py, fetch_edgar_sample.py)
 └── tests/ (unit/, integration/, adversarial/)
 ```
 
