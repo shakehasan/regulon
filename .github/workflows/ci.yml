@@ -43,3 +43,17 @@ jobs:
 
       - name: Public safety scan
         run: python scripts/public_safety_scan.py
+
+  pre-commit:
+    name: pre-commit (full repo)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      # Runs every hook in .pre-commit-config.yaml against every tracked file, not just
+      # staged ones — catching anything a contributor's local hooks might have missed.
+      - uses: pre-commit/action@v3.0.1

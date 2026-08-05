@@ -13,7 +13,7 @@ endif
 
 PY := $(VENV_BIN)/python
 
-.PHONY: help setup lint format type test eval eval-real demo safety clean
+.PHONY: help setup lint format type test ci eval eval-real demo safety badge-coverage clean
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-12s %s\n", $$1, $$2}'
@@ -40,6 +40,11 @@ test: ## Run test suite with coverage gate (>= 80%)
 
 safety: ## Scan the repo for public-safety violations
 	$(PY) scripts/public_safety_scan.py
+
+ci: lint type test safety ## Run every gate CI runs, in the same order, locally
+
+badge-coverage: test ## Regenerate the README coverage badge from a real test run
+	$(PY) scripts/gen_coverage_badge.py
 
 eval: ## Hermetic eval suites with hard gates (arrives with M2; full program in M7)
 	@echo "make eval: eval suites land in M2 (retrieval) and M7 (full program). Nothing to run yet."

@@ -12,17 +12,24 @@ Requirements: Python 3.11+, GNU make, git. (Ollama is needed from M3 onward for 
 git clone https://github.com/shakehasan/regulon.git
 cd regulon
 make setup      # venv + editable install + pre-commit hooks
-make lint type test
+make ci         # lint + type + test + safety — the same gates CI runs, in the same order
 ```
 
 ## Quality bar
 
-Every PR must pass locally before review:
+Every PR must pass locally before review — `make ci` runs all of it in one command:
 
 - `make lint` — ruff check and formatting, line length 120.
 - `make type` — mypy strict on `src/` and `scripts/`.
 - `make test` — pytest with coverage ≥ 80% on `src/regulon`.
 - `make safety` — the public-safety scan (see below).
+
+CI additionally runs the full `pre-commit` hook suite against every tracked file (not just
+staged ones); `pre-commit run --all-files` reproduces that locally.
+
+If your change moves the test coverage percentage, run `make badge-coverage` and commit the
+regenerated `.github/badges/coverage.json` — the README badge is a real, computed number, not
+a hand-typed one, and should never fall out of sync.
 
 Conventions are collected in [AGENTS.md](AGENTS.md). Highlights:
 
