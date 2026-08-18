@@ -30,6 +30,10 @@ apps/dashboard/.next/
 *.db
 .regulon/
 
+# Filings fetched by scripts/fetch_edgar_sample.py. Public-domain, but user-fetched
+# artifacts rather than repo content — the bundled corpus is the SYNTHETIC one.
+data/edgar/
+
 # Editor / OS
 .idea/
 .vscode/

@@ -133,23 +133,26 @@ def _build_offset_map(events: Sequence[RedactionEvent]) -> _OffsetMap:
     return _OffsetMap(tuple(starts), tuple(ends), tuple(new_starts), tuple(new_ends))
 
 
-def _remap_sections(sections: Sequence[Section], text: str, offsets: _OffsetMap) -> list[Section]:
+def _remap_sections(
+    sections: Sequence[Section], text: str, offsets: _OffsetMap, headings: Sequence[str | None]
+) -> list[Section]:
     """Move a section map onto redacted text, re-slicing each section from the new offsets.
 
     Args:
         sections: Sections indexing the pre-redaction text.
         text: The redacted text.
         offsets: Translation produced by :func:`_build_offset_map`.
+        headings: Redacted heading for each section, positionally aligned with ``sections``.
 
     Returns:
         Sections indexing ``text``, still contiguous and in reading order.
     """
     remapped: list[Section] = []
-    for section in sections:
+    for section, heading in zip(sections, headings, strict=True):
         start = offsets.map_offset(section.start_char)
         end = offsets.map_offset(section.end_char)
         remapped.append(
-            Section(order=section.order, heading=section.heading, text=text[start:end], start_char=start, end_char=end)
+            Section(order=section.order, heading=heading, text=text[start:end], start_char=start, end_char=end)
         )
     return remapped
 
@@ -284,30 +287,60 @@ class IngestionPipeline:
             redactions=redactions,
         )
 
+    def _redact_value(self, value: str | None) -> tuple[str | None, int]:
+        """Redact a single metadata string, returning it with its replacement count."""
+        if value is None:
+            return None, 0
+        result = self._redactor.redact(value)
+        return result.text, len(result.events)
+
     def _redact(self, document: NormalizedDocument) -> tuple[NormalizedDocument, int]:
         """Return the document with PII replaced, plus how many replacements were made.
 
-        The returned document carries the redacted text, a section map remapped onto it, and an
-        id recomputed from it, so every offset and identifier the store receives describes the
-        text the store actually holds. A pass that changed nothing returns the input untouched.
+        Redaction covers every string the store persists, not just the body: section headings and
+        the document title travel into ``chunks.section_heading`` and ``documents.title``, so a
+        contact address sitting in a heading would otherwise reach the knowledge base intact even
+        though the body was clean. The returned document carries the redacted text, a section map
+        remapped onto it, and an id recomputed from it, so every offset and identifier the store
+        receives describes the text the store actually holds. A pass that changed nothing anywhere
+        returns the input untouched.
 
         Args:
             document: Normalized document straight from the loader.
 
         Returns:
-            The redacted document and its redaction count.
+            The redacted document and its total redaction count across text and metadata.
         """
         result = self._redactor.redact(document.text)
-        if not result.events:
+
+        headings: list[str | None] = []
+        metadata_redactions = 0
+        for section in document.sections:
+            heading, count = self._redact_value(section.heading)
+            headings.append(heading)
+            metadata_redactions += count
+
+        title, title_redactions = self._redact_value(document.metadata.title)
+        metadata_redactions += title_redactions
+
+        extra: dict[str, str] = {}
+        for key, value in document.metadata.extra.items():
+            redacted_value, count = self._redact_value(value)
+            extra[key] = redacted_value or ""
+            metadata_redactions += count
+
+        total = len(result.events) + metadata_redactions
+        if total == 0:
             return document, 0
+
         offsets = _build_offset_map(result.events)
         return (
             NormalizedDocument(
                 document_id=make_document_id(result.text, document.metadata.source_path),
                 kind=document.kind,
                 text=result.text,
-                sections=_remap_sections(document.sections, result.text, offsets),
-                metadata=document.metadata,
+                sections=_remap_sections(document.sections, result.text, offsets, headings),
+                metadata=document.metadata.model_copy(update={"title": title, "extra": extra}),
             ),
-            len(result.events),
+            total,
         )

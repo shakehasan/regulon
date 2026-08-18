@@ -14,6 +14,8 @@ stored document.
 from __future__ import annotations
 
 import sqlite3
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -145,6 +147,41 @@ def test_no_unredacted_address_survives_into_the_store(corpus: Path, tmp_path: P
     assert any("[REDACTED:email]" in chunk.text for chunk in chunks)
 
 
+def test_no_column_of_the_knowledge_base_holds_unredacted_pii(tmp_path: Path):
+    """Sweep every text column of every table, not just the two named ``text``.
+
+    Regression guard: redaction once covered ``documents.text`` and ``chunks.text`` only, so an
+    address in a front-matter title or a section heading travelled into ``documents.title`` and
+    ``chunks.section_heading`` intact. Asserting against the body alone could not see it, so this
+    test asks the schema which columns exist and checks all of them.
+    """
+    root = tmp_path / "corpus"
+    root.mkdir()
+    (root / "leaky.md").write_text(
+        f"---\ntitle: Investor contact {EMAIL}\n---\n\n# Reach {EMAIL} for details\n\nBody paragraph.\n",
+        encoding="utf-8",
+    )
+    database = tmp_path / "regulon.sqlite3"
+
+    report = ingest(root, database)
+
+    assert report.redactions_applied >= 3, "title, heading, and body should each be redacted"
+    connection = sqlite3.connect(database)
+    try:
+        tables = [row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")]
+        offenders: list[str] = []
+        for table in tables:
+            columns = [row[1] for row in connection.execute(f"PRAGMA table_info({table})")]
+            for column in columns:
+                rows = connection.execute(f"SELECT {column} FROM {table}").fetchall()
+                for (value,) in rows:
+                    if isinstance(value, str) and EMAIL in value:
+                        offenders.append(f"{table}.{column}")
+    finally:
+        connection.close()
+    assert not offenders, f"un-redacted address reached: {sorted(set(offenders))}"
+
+
 def test_stored_chunk_offsets_slice_the_stored_document_text(corpus: Path, tmp_path: Path):
     database = tmp_path / "regulon.sqlite3"
 
@@ -243,3 +280,33 @@ def test_cli_version_prints_the_installed_version():
 
     assert result.exit_code == 0
     assert result.stdout.strip() == __version__
+
+
+@pytest.mark.parametrize("module", ["regulon.cli", "regulon.cli.main"])
+def test_module_entry_point_runs_the_application(corpus: Path, tmp_path: Path, module: str):
+    """``python -m`` must run the app, not import it and exit silently with code 0."""
+    expected = ingest(corpus, tmp_path / "expected.sqlite3")
+
+    completed = subprocess.run(
+        [sys.executable, "-m", module, "ingest", str(corpus), "--db", str(tmp_path / f"{module}.sqlite3")],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    assert f"chunks created:     {expected.chunks_created}" in completed.stdout
+    assert completed.stderr == ""
+
+
+def test_package_re_export_is_the_same_application_object():
+    import regulon.cli
+
+    assert regulon.cli.app is app
+
+
+def test_package_rejects_an_unknown_attribute():
+    import regulon.cli
+
+    with pytest.raises(AttributeError):
+        _ = regulon.cli.does_not_exist

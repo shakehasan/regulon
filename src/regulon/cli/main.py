@@ -103,3 +103,7 @@ def _render_ingest_report(report: IngestReport, database: Path, *, json_output: 
         typer.echo(f"skipped {len(report.skipped)} file(s):")
         for entry in report.skipped:
             typer.echo(f"  {entry}")
+
+
+if __name__ == "__main__":  # pragma: no cover - covered by a subprocess test, not by the importing run
+    app()
