@@ -8,3 +8,25 @@
 app_name: regulon
 environment: dev
 data_dir: ./data
+
+# --- M1: ingestion & knowledge base ---
+ingestion:
+  chunking:
+    # Semantic-aware chunker: split on section boundaries first, then pack sections into
+    # chunks up to max_chars with overlap_chars carried between neighbours. Sections shorter
+    # than min_chars are merged forward rather than emitted as their own chunk.
+    max_chars: 1200
+    overlap_chars: 150
+    min_chars: 200
+  redaction:
+    # Deterministic PII redaction applied at ingest, before anything is stored.
+    enabled: true
+    placeholder: "[REDACTED:{kind}]"
+  edgar:
+    # SEC EDGAR requires a descriptive User-Agent identifying the requester.
+    # Override with REGULON_INGESTION__EDGAR__USER_AGENT before fetching real filings.
+    user_agent: "regulon-open-source-learning-project (contact via GitHub issues)"
+    base_url: "https://www.sec.gov"
+    request_timeout_seconds: 30.0
+    # Courtesy rate limit; SEC asks for no more than 10 requests/second.
+    min_request_interval_seconds: 0.2

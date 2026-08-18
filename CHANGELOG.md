@@ -9,6 +9,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `regulon ingest <path>` (`src/regulon/cli/`): builds a SQLite knowledge base from a file or a
+  directory and reports documents ingested, chunks created, and redactions applied — the M1
+  acceptance path. `--db` chooses the database, `--json` prints the report model instead of a
+  summary, and unparseable files are reported as skipped rather than failing the run.
+- Ingestion pipeline (`src/regulon/ingestion/pipeline.py`) fixing the stage order
+  `load → redact → chunk → store`. No un-redacted text reaches the knowledge base, not even
+  transiently. Because a placeholder is rarely the length of the text it replaces, the pipeline
+  remaps section offsets through the redaction events and recomputes the document id from the
+  redacted text, so every stored offset indexes the text the store actually holds.
+- Ingestion contract (`src/regulon/ingestion/models.py`): frozen Pydantic models exchanged by every
+  stage — `NormalizedDocument`, `Section`, `Chunk`, `ChunkMetadata`, `RedactionEvent`,
+  `IngestReport` — plus deterministic content-hash id builders, so the same document ingested twice
+  on two machines yields identical ids.
+- Document loaders (`src/regulon/ingestion/loaders.py`) for text, Markdown, HTML, and PDF. Each
+  returns normalized text with a `Section` map that tiles the document exactly, Markdown YAML front
+  matter parsed into filing metadata, and HTML parsed with the standard library only.
+- Deterministic PII redaction (`src/regulon/ingestion/redaction.py`) for email, phone, and
+  SSN-shaped strings, applied before anything is stored. Precision-biased on purpose — a bare run
+  of digits is never read as a phone number, so financial figures are not corrupted — with every
+  replacement recorded as an auditable offset span rather than by storing what was removed.
+- Section-aware chunker (`src/regulon/ingestion/chunking.py`): headings bound chunks, short sections
+  merge forward, and text is packed to a character budget breaking at paragraph, then sentence, then
+  word boundaries. Guarantees `document.text[chunk.start_char:chunk.end_char] == chunk.text` for
+  every chunk, which is what makes a citation replayable and checkable.
+- SQLite chunk store (`src/regulon/ingestion/store.py` + `store_sql.py`) behind a `ChunkStore`
+  protocol: one transaction per batch, foreign keys enforced, idempotent re-ingest, and a schema
+  version that refuses to misread a newer database.
+- SEC EDGAR client (`src/regulon/ingestion/edgar.py`) and `scripts/fetch_edgar_sample.py`: ticker →
+  CIK lookup, filing listing, and filing fetch over the standard library, with the configured
+  User-Agent and a courtesy rate limit. Network access is injectable, so no test ever makes a
+  request.
+- `scripts/gen_synthetic_corpus.py` and the generated `data/samples/` corpus: fictional companies
+  and invented figures, `SYNTHETIC_`-prefixed and labeled in front matter, byte-identical for a
+  fixed seed. Regenerate rather than hand-edit — a test fails if the committed corpus drifts.
+- `ingestion` settings in `config/regulon.yaml`: chunking bounds, redaction placeholder, and EDGAR
+  client settings. No chunk size, threshold, or timeout is hardcoded.
+- ADR-003 recording the chunking strategy: why section-aware rather than fixed-size splitting, why
+  character budgets rather than token budgets, why exact offsets and ingest-time redaction — and a
+  plain statement that the chosen parameters are starting points no retrieval benchmark has
+  validated yet.
 - `.github/CODEOWNERS` so every change requires review before merge.
 - Real, computed coverage badge: `scripts/gen_coverage_badge.py` + `make badge-coverage`
   regenerate `.github/badges/coverage.json` from an actual `coverage report` after `make test` —
