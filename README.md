@@ -85,7 +85,7 @@ Each capability lands in the milestone shown; ✅ means merged and CI-verified.
 
 1. Typed core with audit-chain hashing, injectable clock, and config hashing for traceable reports — **M0 ✅**
 2. Public-safety scanner with a configurable denylist, enforced in CI and pre-commit — **M0 ✅**
-3. SEC EDGAR ingestion + clearly-labeled synthetic corpora; PII redaction at ingest — M1
+3. Ingestion: HTML/PDF/Markdown/text loaders, section-aware chunking with exact source offsets and deterministic ids, PII redaction before storage, SQLite knowledge base, EDGAR fetch client, labeled synthetic corpus generator, all driven by `regulon ingest` — **M1 ✅**
 4. Hybrid retrieval: dense (bge-small) + BM25 → Reciprocal Rank Fusion → cross-encoder reranking → relevance grading — M2
 5. Evidence bundles with exact source spans and stable citation IDs; groundedness verification — M2
 6. Model gateway: Ollama by default ($0, local), `deterministic` provider for hermetic CI, generic `http` adapter for any endpoint you bring — M3
@@ -207,7 +207,7 @@ only a `reviewer` role can mark it `final`.
 | Layer | Modules | Responsibility | Milestone |
 |---|---|---|---|
 | Core | `src/regulon/core/` | Config (YAML + env), ids, events, errors, hashing (audit-chain primitive), clock | M0 ✅ |
-| Ingestion | `src/regulon/ingestion/` | EDGAR fetch, loaders, normalization, semantic chunking with metadata, redaction-on-ingest | M1 |
+| Ingestion | `src/regulon/ingestion/` | Loaders (text · markdown · HTML · PDF) with section maps, normalization, deterministic PII redaction, section-aware chunking with exact `[start_char, end_char)` offsets, SQLite chunk store, EDGAR client, end-to-end pipeline | M1 ✅ |
 | Retrieval | `src/regulon/retrieval/` | Dual index (dense + BM25), RRF fusion, cross-encoder reranking, relevance grading, cited evidence bundles | M2 |
 | Model gateway | `src/regulon/gateway/` | Provider adapters, model registry with cost/latency metadata, token & cost accounting | M3 |
 | Agents | `src/regulon/agents/` | Supervisor + 5 specialists (retriever, analyst, writer, critic, compliance), typed state, prompts | M4 |
@@ -217,7 +217,7 @@ only a `reviewer` role can mark it `final`.
 | API & MCP | `src/regulon/api/`, `src/regulon/mcp/` | FastAPI routers + auth dependencies; MCP tools (`ingest`, `research`, `retrieve`, `review_list`, `approve`) | M6 |
 | Evaluation | `src/regulon/evals/` | Versioned golden datasets, RAGAS metrics, G-Eval rubric judge, routing & guardrail suites, hard CI gates | M2, M7 |
 | Observability | `src/regulon/observability/` | OTel spans, JSONL trace export + HTML viewer, Prometheus metrics, cost meter | M8 |
-| CLI | `src/regulon/cli/` | `regulon ingest · retrieve · ask · research · review · audit verify · trace view` | M1–M8 |
+| CLI | `src/regulon/cli/` | `regulon ingest` ✅ · `retrieve · ask · research · review · audit verify · trace view` land with their milestones | M1–M8 |
 | Dashboard | `apps/dashboard/` | Runs, run detail, approvals, evals, traces (talks only to the API) | M10 |
 
 ### RAG pipeline
@@ -238,6 +238,39 @@ flowchart LR
 
 Answers are never returned silently when groundedness falls below threshold — they are revised
 once (bounded critic loop) or escalated to human review.
+
+#### Ingestion (M1 ✅)
+
+The left-hand side of that pipeline is built. Ingestion runs
+`parse → normalize → redact → chunk → store`, and two invariants carry the rest of the system:
+
+- **Offsets are exact.** For every chunk, `document.text[chunk.start_char:chunk.end_char] ==
+  chunk.text`. The chunker selects offsets and never rewrites text, so an evidence span (M2) or a
+  `[S1]` citation in a brief (M4) can be replayed against the stored document and verified
+  character for character.
+- **Redaction happens before storage, not after retrieval.** The store is the trust boundary:
+  emails, phone numbers, and SSN-shaped strings are replaced before anything is persisted, so no
+  index, prompt, cache, or exported database file downstream has to be trusted to scrub again.
+
+Chunking is section-first — headings bound chunks, so no chunk mixes two sections — then packed to
+a character budget with overlap. Ids are deterministic content hashes, so the same document
+ingested twice on two machines produces identical chunk ids and re-ingesting is a no-op rather
+than a duplication. The reasoning, the chosen parameters, and what M2 may force us to change are
+in [ADR-003](docs/adr/003-chunking-strategy.md).
+
+Two data sources, both free of proprietary data:
+
+```bash
+# Regenerate the bundled synthetic corpus (deterministic — same seed, same bytes)
+python scripts/gen_synthetic_corpus.py --out-dir data/samples --seed 20260101 --count 4
+
+# Optional: fetch real public-domain filings (the only path that touches the network)
+python scripts/fetch_edgar_sample.py --ticker <TICKER> --form 10-K --limit 1
+```
+
+Unparseable or unsupported files are reported as `skipped` rather than failing the run, and
+re-running over the same corpus is idempotent — the same documents produce the same ids, so rows
+are replaced, never duplicated.
 
 ## Routing modes
 
@@ -351,17 +384,42 @@ full program lands with M7.
 
 ## Quickstart
 
-Today (M0 — scaffold and quality gates):
+Today (M0 quality gates, M1 ingestion):
 
 ```bash
 git clone https://github.com/shakehasan/regulon.git
 cd regulon
 make setup            # venv + editable install + pre-commit hooks
-make lint type test   # ruff · mypy strict · pytest with 80% coverage gate
-make safety           # public-safety denylist scan
+make ci               # lint · mypy strict · pytest with coverage gate · safety scan
+
+# Build a knowledge base from the bundled SYNTHETIC corpus
+regulon ingest data/samples
 ```
 
+That last command prints:
+
+```
+knowledge base:     data/regulon.sqlite3
+documents ingested: 5
+chunks created:     62
+redactions applied: 12
+  data/samples/README.md: 6 chunks, 0 redactions
+  data/samples/SYNTHETIC_HALCYON-GRID_10-K_FY2023.md: 14 chunks, 3 redactions
+  data/samples/SYNTHETIC_MERIDIAN-FREIGHT_10-K_FY2022.md: 14 chunks, 3 redactions
+  data/samples/SYNTHETIC_MERIDIAN-FREIGHT_10-K_FY2025.md: 14 chunks, 3 redactions
+  data/samples/SYNTHETIC_VANTOR-INSTRUMENTS_10-K_FY2024.md: 14 chunks, 3 redactions
+```
+
+Those counts are reproducible rather than illustrative: the corpus is generated from a fixed seed
+and chunking is deterministic, so a fresh clone produces the same numbers. Change
+`ingestion.chunking` in [`config/regulon.yaml`](config/regulon.yaml) and the chunk count moves with
+it. Add `--json` to get the report as JSON instead. The 12 redactions are the contact details the
+corpus generator plants specifically so the redactor has something to find; the corpus directory's
+own `README.md` is ingested along with the filings because `ingest` takes a path and reads
+everything under it, rather than second-guessing which files you meant.
+
 Requirements: Python 3.11+, GNU make, git. Works on Linux, macOS, and Windows (Git Bash).
+Nothing above touches the network, and no step needs an account or a key.
 
 From M3/M4 onward the demo path becomes:
 
@@ -405,21 +463,22 @@ regulon/
 │   ├── adr/               # architecture decision records (ADR-001, ADR-002, ...)
 │   ├── assets/            # original diagrams for this repo
 │   └── GLOSSARY.md        # plain-language definitions for every term used here
-├── scripts/               # public_safety_scan.py · gen_coverage_badge.py + data tooling (M1)
+├── scripts/               # ✅ public_safety_scan · gen_coverage_badge · gen_synthetic_corpus · fetch_edgar_sample
 ├── src/regulon/
 │   ├── core/              # ✅ config · ids · events · errors · hashing · clock
-│   ├── ingestion/         # M1  loaders · edgar client · chunkers · redaction
+│   ├── ingestion/         # ✅ models · loaders · redaction · chunking · store · edgar · pipeline
 │   ├── retrieval/         # M2  stores (sqlite|pgvector) · bm25 · fusion · reranker
 │   ├── gateway/           # M3  provider adapters · model registry · cost accounting
 │   ├── agents/            # M4  supervisor + specialists · typed state · prompts
 │   ├── orchestration/     # M4  graph build · budgets · hitl nodes
 │   ├── routing/           # M5  rules · semantic · cost · policy · fallback · cache · rl/
 │   ├── governance/        # M6  rbac · policies · audit chain · approval queue
-│   ├── api/ · mcp/ · cli/ # M6  FastAPI · MCP server · Typer CLI (grows M1→M8)
+│   ├── cli/               # ✅ Typer app — `regulon ingest` today, grows M2→M8
+│   ├── api/ · mcp/        # M6  FastAPI routers · MCP server
 │   ├── evals/             # M7  suites · ragas + geval judges · datasets · gates
 │   └── observability/     # M8  otel · metrics · trace viewer
 ├── apps/dashboard/        # M10 Next.js dashboard
-├── data/samples/          # public-domain filing excerpts + SYNTHETIC_ docs (M1)
+├── data/samples/          # ✅ generated SYNTHETIC_ corpus (regenerate, never hand-edit)
 ├── ops/                   # M8  grafana · k8s · locust
 ├── reports/               # M7+ committed real-run artifacts (never hand-written)
 └── tests/                 # unit · integration · adversarial
@@ -436,7 +495,7 @@ language definition for every one of them, in the order a newcomer would meet th
 | Milestone | Scope | Status |
 |---|---|---|
 | M0 | Scaffold & repo governance | ✅ Done |
-| M1 | Ingestion & knowledge base | Planned |
+| M1 | Ingestion & knowledge base | ✅ Done |
 | M2 | Hybrid retrieval | Planned |
 | M3 | Model gateway + real inference | Planned |
 | M4 | Agents & orchestration | Planned |

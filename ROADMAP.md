@@ -8,8 +8,10 @@ verification output. Each milestone is one branch and one PR.
 
 - [x] **M0 — Scaffold & repo governance.** Layout, tooling, CI with coverage gate and safety scan,
       governance docs, ADR-001/002. *(done 2026-07-02)*
-- [ ] **M1 — Ingestion & knowledge base.** EDGAR fetch, bundled + synthetic corpora, chunking with
+- [x] **M1 — Ingestion & knowledge base.** EDGAR fetch, bundled + synthetic corpora, chunking with
       metadata, redaction-on-ingest, SQLite store, `regulon ingest`. ADR-003.
+      *(done 2026-08-05 — `regulon ingest data/samples` reports chunk counts; unit tests cover the
+      chunker and redactor; [ADR-003](docs/adr/003-chunking-strategy.md) records the strategy.)*
 - [ ] **M2 — Hybrid retrieval.** Dense + BM25 + RRF + cross-encoder rerank + grading + cited evidence
       bundles; pgvector profile; retrieval eval gates. ADR-004.
 - [ ] **M3 — Model gateway + real inference.** Provider adapters (ollama default, deterministic for CI),

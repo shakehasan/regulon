@@ -10,6 +10,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from pydantic import BaseModel, Field
 from pydantic_settings import (
     BaseSettings,
     PydanticBaseSettingsSource,
@@ -28,14 +29,52 @@ def _config_file() -> Path:
     return Path(os.environ.get(_CONFIG_FILE_ENV, str(_DEFAULT_CONFIG_FILE)))
 
 
+class ChunkingSettings(BaseModel):
+    """Bounds for the semantic-aware chunker (characters, not tokens — model-agnostic)."""
+
+    max_chars: int = Field(default=1200, gt=0)
+    overlap_chars: int = Field(default=150, ge=0)
+    min_chars: int = Field(default=200, ge=0)
+
+
+class RedactionSettings(BaseModel):
+    """Controls for deterministic PII redaction applied at ingest."""
+
+    enabled: bool = True
+    placeholder: str = "[REDACTED:{kind}]"
+
+
+class EdgarSettings(BaseModel):
+    """Client settings for the public SEC EDGAR API.
+
+    EDGAR asks callers to identify themselves with a descriptive User-Agent. The default is
+    generic on purpose (the repo carries no personal contact details); override it with
+    ``REGULON_INGESTION__EDGAR__USER_AGENT`` before fetching real filings.
+    """
+
+    user_agent: str = "regulon-open-source-learning-project (contact via GitHub issues)"
+    base_url: str = "https://www.sec.gov"
+    request_timeout_seconds: float = Field(default=30.0, gt=0)
+    min_request_interval_seconds: float = Field(default=0.2, ge=0)
+
+
+class IngestionSettings(BaseModel):
+    """Everything the ingestion pipeline can be tuned with."""
+
+    chunking: ChunkingSettings = Field(default_factory=ChunkingSettings)
+    redaction: RedactionSettings = Field(default_factory=RedactionSettings)
+    edgar: EdgarSettings = Field(default_factory=EdgarSettings)
+
+
 class Settings(BaseSettings):
     """Top-level Regulon settings."""
 
-    model_config = SettingsConfigDict(env_prefix="REGULON_", extra="ignore")
+    model_config = SettingsConfigDict(env_prefix="REGULON_", env_nested_delimiter="__", extra="ignore")
 
     app_name: str = "regulon"
     environment: str = "dev"
     data_dir: Path = Path("data")
+    ingestion: IngestionSettings = Field(default_factory=IngestionSettings)
 
     @classmethod
     def settings_customise_sources(
