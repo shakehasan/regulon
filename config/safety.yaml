@@ -57,7 +57,7 @@ patterns:
 
   - name: personal-history
     description: >
-      First-person work-history or biography phrasing. Regulon is a standalone open-source project
+      First-person work-history or biography phrasing. Quorum is a standalone open-source project
       documented on its own technical merits; it carries no author biography, no work history, and
       no account of where or why anything was previously built. Describe what the CODE does, never
       what a person did.
@@ -97,7 +97,7 @@ patterns:
 
   - name: commercial-vendor-name
     description: >
-      Names of hosted/metered commercial services. Regulon is a free learning resource: it must
+      Names of hosted/metered commercial services. Quorum is a free learning resource: it must
       stay vendor-neutral and runnable at zero cost, so it ships no vendor integrations and names
       none. Open-source project names (LangGraph, Prometheus, Ollama, RAGAS, Grafana...) are fine —
       they are freely installable software, not vendors. If an extension point is genuinely needed,

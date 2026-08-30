@@ -3,9 +3,9 @@
 Every document in this directory is **synthetic**: an invented company, invented segments, and
 invented figures, written by [`scripts/gen_synthetic_corpus.py`](../../scripts/gen_synthetic_corpus.py).
 Nothing here is a real filing, a real metric, or investment advice. The files exist so
-`regulon ingest data/samples` has something realistic to parse, chunk, redact, and cite.
+`quorum ingest data/samples` has something realistic to parse, chunk, redact, and cite.
 
-Regulon's data hygiene rule (see [AGENTS.md](../../AGENTS.md)) permits exactly two data sources:
+Quorum's data hygiene rule (see [AGENTS.md](../../AGENTS.md)) permits exactly two data sources:
 public-domain SEC EDGAR filings, and synthetic documents labeled `SYNTHETIC` in filename, front
 matter, and docs. This directory holds the second kind.
 
@@ -79,10 +79,10 @@ Real SEC EDGAR filings are public domain and can be pulled on demand with
 identify themselves, so set a descriptive user agent first:
 
 ```bash
-export REGULON_INGESTION__EDGAR__USER_AGENT="your-project (https://github.com/your-handle)"
+export QUORUM_INGESTION__EDGAR__USER_AGENT="your-project (https://github.com/your-handle)"
 python scripts/fetch_edgar_sample.py --ticker <TICKER> --form 10-K
 ```
 
 Run that script with `--help` for the rest of its options. Fetched filings land in `data/edgar/` by
 default and are not committed: they are real documents from a public source, so the `SYNTHETIC_`
-prefix and the banner do not apply to them. Point `regulon ingest` at either directory, or at both.
+prefix and the banner do not apply to them. Point `quorum ingest` at either directory, or at both.

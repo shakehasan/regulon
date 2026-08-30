@@ -1,11 +1,11 @@
-# Regulon base configuration.
-# Values here are defaults; environment variables with the REGULON_ prefix override them
-# (e.g. REGULON_ENVIRONMENT=ci). See .env.example.
+# Quorum base configuration.
+# Values here are defaults; environment variables with the QUORUM_ prefix override them
+# (e.g. QUORUM_ENVIRONMENT=ci). See .env.example.
 #
 # Convention (AGENTS.md): all thresholds, model names, weights, and budgets live here —
 # no magic numbers in code. Sections grow milestone by milestone.
 
-app_name: regulon
+app_name: quorum
 environment: dev
 data_dir: ./data
 
@@ -29,8 +29,8 @@ ingestion:
     ssn_separators: "-"
   edgar:
     # SEC EDGAR requires a descriptive User-Agent identifying the requester.
-    # Override with REGULON_INGESTION__EDGAR__USER_AGENT before fetching real filings.
-    user_agent: "regulon-open-source-learning-project (contact via GitHub issues)"
+    # Override with QUORUM_INGESTION__EDGAR__USER_AGENT before fetching real filings.
+    user_agent: "quorum-open-source-learning-project (contact via GitHub issues)"
     base_url: "https://www.sec.gov"
     request_timeout_seconds: 30.0
     # Courtesy rate limit; SEC asks for no more than 10 requests/second.

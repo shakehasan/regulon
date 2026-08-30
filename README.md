@@ -1,17 +1,17 @@
 <div align="center">
 
-# Regulon
+# Quorum
 
 **Governed multi-agent RAG, built in the open — every answer cited, every decision traced,
 every risky action approved by a human, every release gated by evals.**
 
-[![CI](https://github.com/shakehasan/regulon/actions/workflows/ci.yml/badge.svg)](https://github.com/shakehasan/regulon/actions/workflows/ci.yml)
-[![Public Safety Scan](https://github.com/shakehasan/regulon/actions/workflows/safety.yml/badge.svg)](https://github.com/shakehasan/regulon/actions/workflows/safety.yml)
+[![CI](https://github.com/shakehasan/quorum/actions/workflows/ci.yml/badge.svg)](https://github.com/shakehasan/quorum/actions/workflows/ci.yml)
+[![Public Safety Scan](https://github.com/shakehasan/quorum/actions/workflows/safety.yml/badge.svg)](https://github.com/shakehasan/quorum/actions/workflows/safety.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](pyproject.toml)
 [![Orchestration](https://img.shields.io/badge/orchestration-LangGraph-4FE3C1.svg)](https://github.com/langchain-ai/langgraph)
 [![Runtime](https://img.shields.io/badge/default_runtime-100%25_local_·_%240-4FE3C1.svg)](docs/adr/002-local-first-real-inference.md)
-[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/shakehasan/regulon/main/.github/badges/coverage.json)](Makefile)
+[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/shakehasan/quorum/main/.github/badges/coverage.json)](Makefile)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 
 **Author:** Shake MD Tareq Hasan · GitHub [@shakehasan](https://github.com/shakehasan)
@@ -20,8 +20,8 @@ every risky action approved by a human, every release gated by evals.**
 
 ---
 
-Regulon is an open-source platform for running multi-agent LLM systems the way regulated
-industries need them run. Most agent frameworks stop at orchestration; Regulon treats the
+Quorum is an open-source platform for running multi-agent LLM systems the way regulated
+industries need them run. Most agent frameworks stop at orchestration; Quorum treats the
 **governance control plane as the product**: grounded and cited answers, explainable routing,
 role-based access, tamper-evident audit trails, human-in-the-loop approval, and evaluation gates
 wired into CI.
@@ -74,7 +74,7 @@ routing decisions that can be explained after the fact, human sign-off before an
 final, access control on every mutating action, and releases gated by evaluation rather than
 vibes. Public, runnable examples that treat those as integrated first-class concerns are scarce.
 
-Regulon is one engineer's attempt to close that gap in the open: a complete, reproducible,
+Quorum is one engineer's attempt to close that gap in the open: a complete, reproducible,
 local-first platform the GitHub community can run, audit, learn from, and build on. The flagship
 reference app, **Research Desk**, is a multi-agent investment-research workflow over public SEC
 EDGAR filings that produces citation-backed briefs — and no brief is final until a human approves it.
@@ -85,7 +85,7 @@ Each capability lands in the milestone shown; ✅ means merged and CI-verified.
 
 1. Typed core with audit-chain hashing, injectable clock, and config hashing for traceable reports — **M0 ✅**
 2. Public-safety scanner with a configurable denylist, enforced in CI and pre-commit — **M0 ✅**
-3. Ingestion: HTML/PDF/Markdown/text loaders, section-aware chunking with exact source offsets and deterministic ids, PII redaction before storage, SQLite knowledge base, EDGAR fetch client, labeled synthetic corpus generator, all driven by `regulon ingest` — **M1 ✅**
+3. Ingestion: HTML/PDF/Markdown/text loaders, section-aware chunking with exact source offsets and deterministic ids, PII redaction before storage, SQLite knowledge base, EDGAR fetch client, labeled synthetic corpus generator, all driven by `quorum ingest` — **M1 ✅**
 4. Hybrid retrieval: dense (bge-small) + BM25 → Reciprocal Rank Fusion → cross-encoder reranking → relevance grading — M2
 5. Evidence bundles with exact source spans and stable citation IDs; groundedness verification — M2
 6. Model gateway: Ollama by default ($0, local), `deterministic` provider for hermetic CI, generic `http` adapter for any endpoint you bring — M3
@@ -94,7 +94,7 @@ Each capability lands in the milestone shown; ✅ means merged and CI-verified.
 9. Bounded critic revision loop and fail-closed guardrail nodes — M4
 10. Six routing strategies emitting auditable `RouteDecision` records — M5
 11. RBAC (`analyst` / `reviewer` / `admin`), YAML policy engine, hash-chained audit log with a verify command — M6
-12. HITL approval queue driven by REST, CLI, and MCP — any MCP client can operate Regulon — M6
+12. HITL approval queue driven by REST, CLI, and MCP — any MCP client can operate Quorum — M6
 13. Evaluation program: RAGAS metrics + a G-Eval rubric judge + a local run store for cross-commit comparison (all $0, no accounts) with retrieval, routing, guardrail (30+ attacks), and end-to-end gates that fail CI — M7
 14. OpenTelemetry traces, Prometheus metrics, Grafana dashboard, per-run cost meter; Docker + reference k8s — M8
 15. Offline RL (LinUCB + epsilon-greedy) tuning routing preferences from human + eval feedback, behind a flag — M9
@@ -105,7 +105,7 @@ Every request flows through the same spine: authenticated API → governed orche
 model calls → grounded retrieval — with an observability and eval-gate plane cutting across every
 layer, and human approval before anything becomes final.
 
-![Regulon system architecture](docs/assets/architecture.svg)
+![Quorum system architecture](docs/assets/architecture.svg)
 
 <details>
 <summary><b>Text version (Mermaid source)</b></summary>
@@ -113,7 +113,7 @@ layer, and human approval before anything becomes final.
 ```mermaid
 flowchart TB
     subgraph clients["Clients"]
-        CLI["regulon CLI"]
+        CLI["quorum CLI"]
         DASH["Dashboard<br/>Next.js"]
         MCPC["Any MCP client<br/>e.g. Claude Desktop"]
     end
@@ -206,18 +206,18 @@ only a `reviewer` role can mark it `final`.
 
 | Layer | Modules | Responsibility | Milestone |
 |---|---|---|---|
-| Core | `src/regulon/core/` | Config (YAML + env), ids, events, errors, hashing (audit-chain primitive), clock | M0 ✅ |
-| Ingestion | `src/regulon/ingestion/` | Loaders (text · markdown · HTML · PDF) with section maps, normalization, deterministic PII redaction, section-aware chunking with exact `[start_char, end_char)` offsets, SQLite chunk store, EDGAR client, end-to-end pipeline | M1 ✅ |
-| Retrieval | `src/regulon/retrieval/` | Dual index (dense + BM25), RRF fusion, cross-encoder reranking, relevance grading, cited evidence bundles | M2 |
-| Model gateway | `src/regulon/gateway/` | Provider adapters, model registry with cost/latency metadata, token & cost accounting | M3 |
-| Agents | `src/regulon/agents/` | Supervisor + 5 specialists (retriever, analyst, writer, critic, compliance), typed state, prompts | M4 |
-| Orchestration | `src/regulon/orchestration/` | Graph build, budgets, bounded critic loop, HITL checkpoint nodes, structured run events | M4 |
-| Routing | `src/regulon/routing/` | Rule / semantic / cost-aware / policy routing, fallback chains, semantic cache, RL optimizer | M5, M9 |
-| Governance | `src/regulon/governance/` | RBAC, policy engine, output redaction, hash-chained audit log, approval queue, webhook notifier | M6 |
-| API & MCP | `src/regulon/api/`, `src/regulon/mcp/` | FastAPI routers + auth dependencies; MCP tools (`ingest`, `research`, `retrieve`, `review_list`, `approve`) | M6 |
-| Evaluation | `src/regulon/evals/` | Versioned golden datasets, RAGAS metrics, G-Eval rubric judge, routing & guardrail suites, hard CI gates | M2, M7 |
-| Observability | `src/regulon/observability/` | OTel spans, JSONL trace export + HTML viewer, Prometheus metrics, cost meter | M8 |
-| CLI | `src/regulon/cli/` | `regulon ingest` ✅ · `retrieve · ask · research · review · audit verify · trace view` land with their milestones | M1–M8 |
+| Core | `src/quorum/core/` | Config (YAML + env), ids, events, errors, hashing (audit-chain primitive), clock | M0 ✅ |
+| Ingestion | `src/quorum/ingestion/` | Loaders (text · markdown · HTML · PDF) with section maps, normalization, deterministic PII redaction, section-aware chunking with exact `[start_char, end_char)` offsets, SQLite chunk store, EDGAR client, end-to-end pipeline | M1 ✅ |
+| Retrieval | `src/quorum/retrieval/` | Dual index (dense + BM25), RRF fusion, cross-encoder reranking, relevance grading, cited evidence bundles | M2 |
+| Model gateway | `src/quorum/gateway/` | Provider adapters, model registry with cost/latency metadata, token & cost accounting | M3 |
+| Agents | `src/quorum/agents/` | Supervisor + 5 specialists (retriever, analyst, writer, critic, compliance), typed state, prompts | M4 |
+| Orchestration | `src/quorum/orchestration/` | Graph build, budgets, bounded critic loop, HITL checkpoint nodes, structured run events | M4 |
+| Routing | `src/quorum/routing/` | Rule / semantic / cost-aware / policy routing, fallback chains, semantic cache, RL optimizer | M5, M9 |
+| Governance | `src/quorum/governance/` | RBAC, policy engine, output redaction, hash-chained audit log, approval queue, webhook notifier | M6 |
+| API & MCP | `src/quorum/api/`, `src/quorum/mcp/` | FastAPI routers + auth dependencies; MCP tools (`ingest`, `research`, `retrieve`, `review_list`, `approve`) | M6 |
+| Evaluation | `src/quorum/evals/` | Versioned golden datasets, RAGAS metrics, G-Eval rubric judge, routing & guardrail suites, hard CI gates | M2, M7 |
+| Observability | `src/quorum/observability/` | OTel spans, JSONL trace export + HTML viewer, Prometheus metrics, cost meter | M8 |
+| CLI | `src/quorum/cli/` | `quorum ingest` ✅ · `retrieve · ask · research · review · audit verify · trace view` land with their milestones | M1–M8 |
 | Dashboard | `apps/dashboard/` | Runs, run detail, approvals, evals, traces (talks only to the API) | M10 |
 
 ### RAG pipeline
@@ -319,8 +319,8 @@ final schema ships with M6):
 
 **Audit log** — append-only JSONL where each record commits to the SHA-256 of the previous record
 (the chain primitive, `chain_hash`, is already implemented and tested in
-[`core/hashing.py`](src/regulon/core/hashing.py)). Any edit to history breaks the chain, and
-`regulon audit verify` (M6) walks it end to end. Tamper-*evident*, not tamper-proof — the threat
+[`core/hashing.py`](src/quorum/core/hashing.py)). Any edit to history breaks the chain, and
+`quorum audit verify` (M6) walks it end to end. Tamper-*evident*, not tamper-proof — the threat
 model document (M6) spells out the boundary.
 
 **Approval flow** — a finished brief enters the queue as `pending_review`; a `reviewer` approves
@@ -341,8 +341,8 @@ two required and fully local, one optional — described in
 
 **There is no hosted evaluation service anywhere in this stack, and no free tier to sign up for.**
 Every run appends its metrics, git SHA, config hash, and machine spec to
-`reports/eval_runs.jsonl`; `regulon eval compare A B` prints the delta between any two runs and
-`regulon eval history` shows the trend. Hosted platforms have nicer dashboards, but all of them
+`reports/eval_runs.jsonl`; `quorum eval compare A B` prints the delta between any two runs and
+`quorum eval history` shows the trend. Hosted platforms have nicer dashboards, but all of them
 need an account and most meter usage — which would put a paywall between a learner and the numbers
 this repo publishes. See [ADR-009](docs/adr/009-evaluation-stack-and-gates.md) for the full
 build-not-buy reasoning.
@@ -387,19 +387,19 @@ full program lands with M7.
 Today (M0 quality gates, M1 ingestion):
 
 ```bash
-git clone https://github.com/shakehasan/regulon.git
-cd regulon
+git clone https://github.com/shakehasan/quorum.git
+cd quorum
 make setup            # venv + editable install + pre-commit hooks
 make ci               # lint · mypy strict · pytest with coverage gate · safety scan
 
 # Build a knowledge base from the bundled SYNTHETIC corpus
-regulon ingest data/samples
+quorum ingest data/samples
 ```
 
 That last command prints:
 
 ```
-knowledge base:     data/regulon.sqlite3
+knowledge base:     data/quorum.sqlite3
 documents ingested: 5
 chunks created:     62
 redactions applied: 12
@@ -412,7 +412,7 @@ redactions applied: 12
 
 Those counts are reproducible rather than illustrative: the corpus is generated from a fixed seed
 and chunking is deterministic, so a fresh clone produces the same numbers. Change
-`ingestion.chunking` in [`config/regulon.yaml`](config/regulon.yaml) and the chunk count moves with
+`ingestion.chunking` in [`config/quorum.yaml`](config/quorum.yaml) and the chunk count moves with
 it. Add `--json` to get the report as JSON instead. The 12 redactions are the contact details the
 corpus generator plants specifically so the redactor has something to find; the corpus directory's
 own `README.md` is ingested along with the filings because `ingest` takes a path and reads
@@ -433,20 +433,20 @@ The demo always runs a real local model — never canned output.
 
 ## Configuration
 
-All tunables live under [`config/`](config/); environment variables with the `REGULON_` prefix
+All tunables live under [`config/`](config/); environment variables with the `QUORUM_` prefix
 override the files. No magic numbers in code.
 
 | File | Contains |
 |---|---|
-| [`config/regulon.yaml`](config/regulon.yaml) | Runtime settings; grows with each milestone (model registry, budgets, policies) |
+| [`config/quorum.yaml`](config/quorum.yaml) | Runtime settings; grows with each milestone (model registry, budgets, policies) |
 | [`config/evals.yaml`](config/evals.yaml) | Judge model, dataset version, and every CI gate threshold |
 | [`config/safety.yaml`](config/safety.yaml) | Public-safety denylist patterns and exclusions |
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `REGULON_ENVIRONMENT` | `dev` | Runtime environment name (`dev` / `ci` / `prod`) |
-| `REGULON_DATA_DIR` | `./data` | Root for local data (knowledge base, queues, audit log) |
-| `REGULON_CONFIG_FILE` | `config/regulon.yaml` | Alternate config file path |
+| `QUORUM_ENVIRONMENT` | `dev` | Runtime environment name (`dev` / `ci` / `prod`) |
+| `QUORUM_DATA_DIR` | `./data` | Root for local data (knowledge base, queues, audit log) |
+| `QUORUM_CONFIG_FILE` | `config/quorum.yaml` | Alternate config file path |
 | `OLLAMA_HOST` | `http://localhost:11434` | Local model server (M3+) |
 
 See [`.env.example`](.env.example). **No environment variable in this project is an API key you
@@ -455,7 +455,7 @@ have to obtain** — the entire default path runs without accounts, keys, or pay
 ## Project layout
 
 ```
-regulon/
+quorum/
 ├── PLAN.md                # the full public build specification
 ├── AGENTS.md              # engineering conventions for contributors & coding agents
 ├── config/                # all tunables: runtime · eval gates · safety denylist
@@ -464,7 +464,7 @@ regulon/
 │   ├── assets/            # original diagrams for this repo
 │   └── GLOSSARY.md        # plain-language definitions for every term used here
 ├── scripts/               # ✅ public_safety_scan · gen_coverage_badge · gen_synthetic_corpus · fetch_edgar_sample
-├── src/regulon/
+├── src/quorum/
 │   ├── core/              # ✅ config · ids · events · errors · hashing · clock
 │   ├── ingestion/         # ✅ models · loaders · redaction · chunking · store · edgar · pipeline
 │   ├── retrieval/         # M2  stores (sqlite|pgvector) · bm25 · fusion · reranker
@@ -473,7 +473,7 @@ regulon/
 │   ├── orchestration/     # M4  graph build · budgets · hitl nodes
 │   ├── routing/           # M5  rules · semantic · cost · policy · fallback · cache · rl/
 │   ├── governance/        # M6  rbac · policies · audit chain · approval queue
-│   ├── cli/               # ✅ Typer app — `regulon ingest` today, grows M2→M8
+│   ├── cli/               # ✅ Typer app — `quorum ingest` today, grows M2→M8
 │   ├── api/ · mcp/        # M6  FastAPI routers · MCP server
 │   ├── evals/             # M7  suites · ragas + geval judges · datasets · gates
 │   └── observability/     # M8  otel · metrics · trace viewer
@@ -512,7 +512,7 @@ Detail and acceptance criteria: [ROADMAP.md](ROADMAP.md) · full spec: [PLAN.md]
 
 Contributions are welcome — start with [CONTRIBUTING.md](CONTRIBUTING.md) and the conventions in
 [AGENTS.md](AGENTS.md). Security reports go through
-[GitHub Security Advisories](https://github.com/shakehasan/regulon/security/advisories/new), not
+[GitHub Security Advisories](https://github.com/shakehasan/quorum/security/advisories/new), not
 public issues — see [SECURITY.md](SECURITY.md). All participation is covered by the
 [Code of Conduct](CODE_OF_CONDUCT.md).
 
@@ -538,13 +538,13 @@ See [ADR-009](docs/adr/009-evaluation-stack-and-gates.md).
 
 **Why build experiment tracking instead of using a platform?** Hosted trackers have better UIs,
 but they need an account and most meter usage — so anyone without a subscription could not verify
-this repo's published numbers. A JSONL run store plus `regulon eval compare` answers the real
+this repo's published numbers. A JSONL run store plus `quorum eval compare` answers the real
 question ("did this commit regress?") for free, and keeps the numbers reproducible by anyone.
 
 **Can I use a different model?** Any model Ollama can run works out of the box — just change the
 model name in config. Beyond that, the gateway ships a generic `http` adapter you can point at any
 endpoint you already have access to; the router treats it as another candidate with its own
-cost/latency metadata. Regulon itself bundles no vendor integrations and requires no subscription.
+cost/latency metadata. Quorum itself bundles no vendor integrations and requires no subscription.
 
 **Why SEC filings as the demo domain?** They are public-domain, information-dense, and realistic
 for a governed research workflow — and they keep the repo free of proprietary data. The only other
@@ -558,12 +558,14 @@ engine.
 **Why is the build plan public?** The spec-first, milestone-gated process is part of what this
 repo is meant to share — not just the code, but how it gets built and verified.
 
-**What does "Regulon" mean?** In biology, a regulon is a set of genes governed as one unit. Here:
-a set of agents governed by one control plane.
+**What does "Quorum" mean?** A quorum is the number of members whose presence makes a deliberative
+body's decisions valid. Many agents deliberate here, but a result only counts once the control
+plane's conditions are met — evidence cited, policy satisfied, guardrails passed, and a human
+reviewer's approval recorded. Anything short of that is an opinion, not a decision.
 
 ## Disclaimer
 
-Regulon is built for **learning and education**. It is a reference implementation for studying how
+Quorum is built for **learning and education**. It is a reference implementation for studying how
 governed multi-agent systems are engineered — not a commercial product, not a managed service, and
 not affiliated with any company. Nothing it produces is investment advice. The SEC filings it
 reads are public-domain documents used purely as realistic study material, alongside clearly

@@ -1,7 +1,7 @@
 """Application settings: YAML file defaults with environment-variable overrides.
 
-Precedence (highest wins): explicit constructor kwargs > ``REGULON_``-prefixed environment
-variables > ``config/regulon.yaml`` > field defaults. All tunables (thresholds, model names,
+Precedence (highest wins): explicit constructor kwargs > ``QUORUM_``-prefixed environment
+variables > ``config/quorum.yaml`` > field defaults. All tunables (thresholds, model names,
 weights, budgets) belong in the YAML file, never as literals in code (AGENTS.md).
 """
 
@@ -18,14 +18,14 @@ from pydantic_settings import (
     YamlConfigSettingsSource,
 )
 
-from regulon.core.hashing import hash_json
+from quorum.core.hashing import hash_json
 
-_CONFIG_FILE_ENV = "REGULON_CONFIG_FILE"
-_DEFAULT_CONFIG_FILE = Path("config") / "regulon.yaml"
+_CONFIG_FILE_ENV = "QUORUM_CONFIG_FILE"
+_DEFAULT_CONFIG_FILE = Path("config") / "quorum.yaml"
 
 
 def _config_file() -> Path:
-    """Resolve the YAML config path (override with REGULON_CONFIG_FILE)."""
+    """Resolve the YAML config path (override with QUORUM_CONFIG_FILE)."""
     return Path(os.environ.get(_CONFIG_FILE_ENV, str(_DEFAULT_CONFIG_FILE)))
 
 
@@ -58,10 +58,10 @@ class EdgarSettings(BaseModel):
 
     EDGAR asks callers to identify themselves with a descriptive User-Agent. The default is
     generic on purpose (the repo carries no personal contact details); override it with
-    ``REGULON_INGESTION__EDGAR__USER_AGENT`` before fetching real filings.
+    ``QUORUM_INGESTION__EDGAR__USER_AGENT`` before fetching real filings.
     """
 
-    user_agent: str = "regulon-open-source-learning-project (contact via GitHub issues)"
+    user_agent: str = "quorum-open-source-learning-project (contact via GitHub issues)"
     base_url: str = "https://www.sec.gov"
     request_timeout_seconds: float = Field(default=30.0, gt=0)
     min_request_interval_seconds: float = Field(default=0.2, ge=0)
@@ -76,11 +76,11 @@ class IngestionSettings(BaseModel):
 
 
 class Settings(BaseSettings):
-    """Top-level Regulon settings."""
+    """Top-level Quorum settings."""
 
-    model_config = SettingsConfigDict(env_prefix="REGULON_", env_nested_delimiter="__", extra="ignore")
+    model_config = SettingsConfigDict(env_prefix="QUORUM_", env_nested_delimiter="__", extra="ignore")
 
-    app_name: str = "regulon"
+    app_name: str = "quorum"
     environment: str = "dev"
     data_dir: Path = Path("data")
     ingestion: IngestionSettings = Field(default_factory=IngestionSettings)

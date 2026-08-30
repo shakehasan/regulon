@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "regulon"
+name = "quorum"
 version = "0.0.1"
 description = "Governed multi-agent RAG platform: LangGraph orchestration, hybrid retrieval, adaptive routing, HITL approvals, RBAC, audit trails, and evaluation-gated CI. Local-first, open source."
 readme = "README.md"
@@ -48,14 +48,14 @@ dev = [
 ]
 
 [project.scripts]
-regulon = "regulon.cli.main:app"
+quorum = "quorum.cli.main:app"
 
 [project.urls]
-Repository = "https://github.com/shakehasan/regulon"
-Issues = "https://github.com/shakehasan/regulon/issues"
+Repository = "https://github.com/shakehasan/quorum"
+Issues = "https://github.com/shakehasan/quorum/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/regulon"]
+packages = ["src/quorum"]
 
 [tool.ruff]
 line-length = 120
@@ -107,7 +107,7 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["regulon"]
+source = ["quorum"]
 branch = true
 
 [tool.coverage.report]

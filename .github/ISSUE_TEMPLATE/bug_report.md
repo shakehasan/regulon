@@ -23,7 +23,7 @@ labels: bug
 
 - OS:
 - Python version:
-- Regulon version / commit:
+- Quorum version / commit:
 - Model provider (ollama / deterministic / other):
 
 ## Logs / traces

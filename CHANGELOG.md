@@ -9,41 +9,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `regulon ingest <path>` (`src/regulon/cli/`): builds a SQLite knowledge base from a file or a
+- `quorum ingest <path>` (`src/quorum/cli/`): builds a SQLite knowledge base from a file or a
   directory and reports documents ingested, chunks created, and redactions applied — the M1
   acceptance path. `--db` chooses the database, `--json` prints the report model instead of a
   summary, and unparseable files are reported as skipped rather than failing the run.
-- Ingestion pipeline (`src/regulon/ingestion/pipeline.py`) fixing the stage order
+- Ingestion pipeline (`src/quorum/ingestion/pipeline.py`) fixing the stage order
   `load → redact → chunk → store`. No un-redacted text reaches the knowledge base, not even
   transiently. Because a placeholder is rarely the length of the text it replaces, the pipeline
   remaps section offsets through the redaction events and recomputes the document id from the
   redacted text, so every stored offset indexes the text the store actually holds.
-- Ingestion contract (`src/regulon/ingestion/models.py`): frozen Pydantic models exchanged by every
+- Ingestion contract (`src/quorum/ingestion/models.py`): frozen Pydantic models exchanged by every
   stage — `NormalizedDocument`, `Section`, `Chunk`, `ChunkMetadata`, `RedactionEvent`,
   `IngestReport` — plus deterministic content-hash id builders, so the same document ingested twice
   on two machines yields identical ids.
-- Document loaders (`src/regulon/ingestion/loaders.py`) for text, Markdown, HTML, and PDF. Each
+- Document loaders (`src/quorum/ingestion/loaders.py`) for text, Markdown, HTML, and PDF. Each
   returns normalized text with a `Section` map that tiles the document exactly, Markdown YAML front
   matter parsed into filing metadata, and HTML parsed with the standard library only.
-- Deterministic PII redaction (`src/regulon/ingestion/redaction.py`) for email, phone, and
+- Deterministic PII redaction (`src/quorum/ingestion/redaction.py`) for email, phone, and
   SSN-shaped strings, applied before anything is stored. Precision-biased on purpose — a bare run
   of digits is never read as a phone number, so financial figures are not corrupted — with every
   replacement recorded as an auditable offset span rather than by storing what was removed.
-- Section-aware chunker (`src/regulon/ingestion/chunking.py`): headings bound chunks, short sections
+- Section-aware chunker (`src/quorum/ingestion/chunking.py`): headings bound chunks, short sections
   merge forward, and text is packed to a character budget breaking at paragraph, then sentence, then
   word boundaries. Guarantees `document.text[chunk.start_char:chunk.end_char] == chunk.text` for
   every chunk, which is what makes a citation replayable and checkable.
-- SQLite chunk store (`src/regulon/ingestion/store.py` + `store_sql.py`) behind a `ChunkStore`
+- SQLite chunk store (`src/quorum/ingestion/store.py` + `store_sql.py`) behind a `ChunkStore`
   protocol: one transaction per batch, foreign keys enforced, idempotent re-ingest, and a schema
   version that refuses to misread a newer database.
-- SEC EDGAR client (`src/regulon/ingestion/edgar.py`) and `scripts/fetch_edgar_sample.py`: ticker →
+- SEC EDGAR client (`src/quorum/ingestion/edgar.py`) and `scripts/fetch_edgar_sample.py`: ticker →
   CIK lookup, filing listing, and filing fetch over the standard library, with the configured
   User-Agent and a courtesy rate limit. Network access is injectable, so no test ever makes a
   request.
 - `scripts/gen_synthetic_corpus.py` and the generated `data/samples/` corpus: fictional companies
   and invented figures, `SYNTHETIC_`-prefixed and labeled in front matter, byte-identical for a
   fixed seed. Regenerate rather than hand-edit — a test fails if the committed corpus drifts.
-- `ingestion` settings in `config/regulon.yaml`: chunking bounds, redaction placeholder, and EDGAR
+- `ingestion` settings in `config/quorum.yaml`: chunking bounds, redaction placeholder, and EDGAR
   client settings. No chunk size, threshold, or timeout is hardcoded.
 - ADR-003 recording the chunking strategy: why section-aware rather than fixed-size splitting, why
   character budgets rather than token budgets, why exact offsets and ingest-time redaction — and a
@@ -68,7 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   derivative projects — never required, since the MIT license already permits free reuse.
 - Evaluation stack design: **RAGAS** (standard RAG metrics) + an in-repo **G-Eval** rubric judge,
   both running on the local judge model, plus an in-repo **local run store** (`eval_runs.jsonl` +
-  `regulon eval compare|history`) for cross-commit comparison. Every layer is free and offline —
+  `quorum eval compare|history`) for cross-commit comparison. Every layer is free and offline —
   no hosted service, no account, no API key.
 - `config/evals.yaml`: judge settings, dataset version, and every CI gate threshold declared as
   config (targets, not measured results), calibrated against real baselines in M7.
@@ -87,7 +87,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   clock, and YAML+env configuration with a stable config hash.
 - Governance docs: LICENSE (MIT), CONTRIBUTING, SECURITY, CODE_OF_CONDUCT, ROADMAP, AGENTS.md,
   issue/PR templates.
-- ADR-001 (why Regulon / scope) and ADR-002 (local-first, real inference by default).
+- ADR-001 (why Quorum / scope) and ADR-002 (local-first, real inference by default).
 
 ### Changed
 

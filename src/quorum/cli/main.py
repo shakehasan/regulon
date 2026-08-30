@@ -1,4 +1,4 @@
-"""The ``regulon`` command-line application.
+"""The ``quorum`` command-line application.
 
 The CLI is deliberately thin: every command resolves configuration, opens the resources its
 subsystem needs, calls one object, and renders the model that comes back. No ingestion,
@@ -18,25 +18,25 @@ from typing import Annotated
 
 import typer
 
-from regulon import __version__
-from regulon.core.config import load_settings
-from regulon.core.errors import RegulonError
-from regulon.ingestion.models import IngestReport
-from regulon.ingestion.pipeline import IngestionPipeline
-from regulon.ingestion.store import SQLiteChunkStore
+from quorum import __version__
+from quorum.core.config import load_settings
+from quorum.core.errors import QuorumError
+from quorum.ingestion.models import IngestReport
+from quorum.ingestion.pipeline import IngestionPipeline
+from quorum.ingestion.store import SQLiteChunkStore
 
 __all__ = ["app"]
 
 # Where the knowledge base lives is configured (``data_dir``); what it is called is not a
 # behaviour tunable, and ``--db`` overrides the whole path anyway.
-_DATABASE_FILENAME = "regulon.sqlite3"
+_DATABASE_FILENAME = "quorum.sqlite3"
 _LABEL_WIDTH = 20
 
 app = typer.Typer(
-    name="regulon",
+    name="quorum",
     add_completion=False,
     no_args_is_help=True,
-    help="Regulon: governed multi-agent RAG you can run locally.",
+    help="Quorum: governed multi-agent RAG you can run locally.",
 )
 
 
@@ -48,7 +48,7 @@ def ingest(
     ],
     db: Annotated[
         Path | None,
-        typer.Option("--db", help="SQLite knowledge base to write. Defaults to <data_dir>/regulon.sqlite3."),
+        typer.Option("--db", help="SQLite knowledge base to write. Defaults to <data_dir>/quorum.sqlite3."),
     ] = None,
     json_output: Annotated[
         bool,
@@ -70,7 +70,7 @@ def ingest(
         database.parent.mkdir(parents=True, exist_ok=True)
         with SQLiteChunkStore(database) as store:
             report = IngestionPipeline(store, settings=settings).ingest_path(path)
-    except (RegulonError, OSError) as exc:
+    except (QuorumError, OSError) as exc:
         typer.echo(f"error: {exc}", err=True)
         raise typer.Exit(code=1) from exc
     _render_ingest_report(report, database, json_output=json_output)
@@ -78,7 +78,7 @@ def ingest(
 
 @app.command()
 def version() -> None:
-    """Print the installed Regulon version."""
+    """Print the installed Quorum version."""
     typer.echo(__version__)
 
 

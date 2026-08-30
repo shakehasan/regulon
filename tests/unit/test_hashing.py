@@ -1,4 +1,4 @@
-from regulon.core.hashing import GENESIS_HASH, canonical_json, chain_hash, hash_json, sha256_hex
+from quorum.core.hashing import GENESIS_HASH, canonical_json, chain_hash, hash_json, sha256_hex
 
 
 def test_sha256_known_vector():
@@ -7,7 +7,7 @@ def test_sha256_known_vector():
 
 
 def test_sha256_str_and_bytes_agree():
-    assert sha256_hex("regulon") == sha256_hex(b"regulon")
+    assert sha256_hex("quorum") == sha256_hex(b"quorum")
 
 
 def test_canonical_json_key_order_invariant():
@@ -31,4 +31,4 @@ def test_chain_hash_links_records():
 
 def test_genesis_hash_is_fixed():
     assert len(GENESIS_HASH) == 64
-    assert sha256_hex(b"regulon-audit-genesis") == GENESIS_HASH
+    assert sha256_hex(b"quorum-audit-genesis") == GENESIS_HASH

@@ -11,7 +11,7 @@ Two failure modes are common in public LLM-platform repos:
 2. The demo runs "canned" responses, so what visitors see is theater — and any published metrics
    are unverifiable.
 
-Regulon's credibility rests on reproducibility: anyone should be able to clone the repo and watch
+Quorum's credibility rests on reproducibility: anyone should be able to clone the repo and watch
 a real multi-agent run with real inference, and every published number must be regenerable by a
 command.
 
@@ -33,7 +33,7 @@ command.
 - **No vendor adapters ship in this repo.** Naming commercial services would put business names in
   a project meant purely as a free learning resource, and would imply a cost path. The gateway
   instead exposes a generic `http` adapter interface so anyone can wire in an endpoint they already
-  have, without Regulon endorsing, integrating, or requiring one.
+  have, without Quorum endorsing, integrating, or requiring one.
 
 ## Alternatives considered
 

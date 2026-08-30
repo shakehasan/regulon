@@ -8,7 +8,7 @@ document.
 
 The strategy, in order of precedence:
 
-1. **Sections bound chunks.** Each :class:`~regulon.ingestion.models.Section` is packed on its
+1. **Sections bound chunks.** Each :class:`~quorum.ingestion.models.Section` is packed on its
    own, so no chunk mixes two sections. A section shorter than ``min_chars`` is merged forward
    into the next one instead of becoming a stub chunk of its own.
 2. **Packing prefers structure.** Within a section, text is packed up to ``max_chars``, breaking
@@ -19,7 +19,7 @@ The strategy, in order of precedence:
    retrievable from either side.
 
 Chunking is deterministic: the same document and the same
-:class:`~regulon.core.config.ChunkingSettings` always produce the same chunk list, ids included.
+:class:`~quorum.core.config.ChunkingSettings` always produce the same chunk list, ids included.
 """
 
 from __future__ import annotations
@@ -29,8 +29,8 @@ from bisect import bisect_right
 from collections.abc import Sequence
 from typing import NamedTuple
 
-from regulon.core.config import ChunkingSettings, load_settings
-from regulon.ingestion.models import Chunk, ChunkMetadata, NormalizedDocument, Section, make_chunk_id
+from quorum.core.config import ChunkingSettings, load_settings
+from quorum.ingestion.models import Chunk, ChunkMetadata, NormalizedDocument, Section, make_chunk_id
 
 _PARAGRAPH_BREAK = re.compile(r"\n[ \t]*\n\s*")
 _SENTENCE_BREAK = re.compile(r"[.!?][\"')\]]*\s+")
@@ -186,7 +186,7 @@ class Chunker:
         """Build a chunker.
 
         Args:
-            settings: Chunking bounds. Defaults to ``ingestion.chunking`` from the loaded Regulon
+            settings: Chunking bounds. Defaults to ``ingestion.chunking`` from the loaded Quorum
                 configuration, so callers never hardcode sizes.
         """
         self._settings = settings if settings is not None else load_settings().ingestion.chunking

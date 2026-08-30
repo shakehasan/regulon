@@ -12,9 +12,9 @@ from itertools import pairwise
 
 import pytest
 
-from regulon.core.config import ChunkingSettings
-from regulon.ingestion.chunking import Chunker
-from regulon.ingestion.models import (
+from quorum.core.config import ChunkingSettings
+from quorum.ingestion.chunking import Chunker
+from quorum.ingestion.models import (
     Chunk,
     DocumentMetadata,
     NormalizedDocument,

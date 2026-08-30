@@ -12,14 +12,14 @@ milestone earlier.
 
 Four forces shape it:
 
-1. **The citation contract.** Regulon's headline promise is that every claim in a brief points at
+1. **The citation contract.** Quorum's headline promise is that every claim in a brief points at
    an evidence span a reader can open in the source. That makes a chunk not just an indexing unit
    but a *quotable* one — it has to be an exact, replayable slice of the stored document, and it
    has to be coherent enough that a human reading it alone can tell whether it supports the claim.
 2. **The corpus is filings.** 10-K-shaped documents carry explicit heading structure (Business
    Overview, Risk Factors, MD&A, Liquidity and Capital Resources). The segmentation a chunker
    would otherwise have to infer is already written into the document, and the loaders
-   ([`loaders.py`](../../src/regulon/ingestion/loaders.py)) already recover it as a `Section` map
+   ([`loaders.py`](../../src/quorum/ingestion/loaders.py)) already recover it as a `Section` map
    that tiles the text exactly.
 3. **Nothing downstream exists yet.** The embedding model, BM25 index, fusion, and reranker all
    land in M2. The chunker must be committed *before* there is anything to measure it against.
@@ -37,7 +37,7 @@ replace them arrive with M2's recall@k / MRR / nDCG suite.
 
 Chunk **section-first, then pack to a character budget**, preserving exact offsets, with redaction
 applied before chunking. Implemented in
-[`chunking.py`](../../src/regulon/ingestion/chunking.py).
+[`chunking.py`](../../src/quorum/ingestion/chunking.py).
 
 ### 1. Sections bound chunks
 
@@ -57,7 +57,7 @@ document.
 
 ### 2. Parameters — starting points, declared in config
 
-All three live in [`config/regulon.yaml`](../../config/regulon.yaml) under `ingestion.chunking`
+All three live in [`config/quorum.yaml`](../../config/quorum.yaml) under `ingestion.chunking`
 and are read through `Settings`; none is hardcoded.
 
 | Setting | Value | Why this value, today |
@@ -75,11 +75,11 @@ model that will consume the chunk — is more precise about what a model actuall
 rejected at this layer for three reasons:
 
 - **Model-agnostic ingest.** A token budget binds the stored corpus to one tokenizer. Changing the
-  embedding model, or using different models for embedding and generation (which Regulon does),
+  embedding model, or using different models for embedding and generation (which Quorum does),
   would mean the stored chunks were sized for a model that no longer reads them, or a re-ingest of
   the whole corpus on a model swap.
 - **No tokenizer dependency at ingest time.** Ingestion runs before the gateway exists (M3) and
-  must stay free of model weights and downloads. `regulon ingest` should work on a machine with no
+  must stay free of model weights and downloads. `quorum ingest` should work on a machine with no
   model server, which is also what keeps ingestion tests hermetic.
 - **Determinism.** A character count is stable forever. A token count changes with a tokenizer
   version, which would silently change chunk boundaries and therefore every chunk id.
@@ -112,8 +112,8 @@ content hashes, so the same document ingested twice on two machines produces ide
 ### 5. Redaction runs before chunking and before storage
 
 The stage order is `parse → normalize → redact → chunk → store`, fixed by
-[`pipeline.py`](../../src/regulon/ingestion/pipeline.py) — the one place the stages meet — and
-implemented by [`redaction.py`](../../src/regulon/ingestion/redaction.py).
+[`pipeline.py`](../../src/quorum/ingestion/pipeline.py) — the one place the stages meet — and
+implemented by [`redaction.py`](../../src/quorum/ingestion/redaction.py).
 
 Redaction is first because **the store is the trust boundary.** Everything after it — the dense
 index, the BM25 index, evidence bundles, model prompts, cached answers, rendered citations, eval

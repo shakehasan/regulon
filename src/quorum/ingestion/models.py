@@ -24,7 +24,7 @@ from typing import Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from regulon.core.hashing import hash_json
+from quorum.core.hashing import hash_json
 
 _DOCUMENT_ID_PREFIX = "doc_"
 _CHUNK_ID_PREFIX = "chk_"

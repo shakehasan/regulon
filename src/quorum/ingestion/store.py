@@ -14,12 +14,12 @@ Three properties are worth knowing before building on it:
 * **Writes are idempotent.** Documents and chunks upsert on their content-hash primary keys, so
   re-running ingestion over the same corpus converges instead of raising or duplicating rows.
 * **Version 1 is deliberately narrow.** It stores document text and filing metadata but not the
-  :class:`~regulon.ingestion.models.Section` map or ``DocumentMetadata.extra``; chunks carry the
+  :class:`~quorum.ingestion.models.Section` map or ``DocumentMetadata.extra``; chunks carry the
   denormalized metadata that retrieval filters on. The ``schema_version`` table exists so a later
   milestone migrates rather than guesses, and a database written by a newer version is rejected.
 
 Every statement is parameterized, and every :class:`sqlite3.Error` surfaces as a
-:class:`~regulon.ingestion.errors.StoreError` so callers catch one subsystem exception type.
+:class:`~quorum.ingestion.errors.StoreError` so callers catch one subsystem exception type.
 """
 
 from __future__ import annotations
@@ -31,11 +31,11 @@ from pathlib import Path
 from types import TracebackType
 from typing import TYPE_CHECKING, Protocol, Self, runtime_checkable
 
-from regulon.core.clock import Clock, SystemClock, isoformat_utc
-from regulon.ingestion import store_sql
-from regulon.ingestion.errors import StoreError
-from regulon.ingestion.models import Chunk, NormalizedDocument
-from regulon.ingestion.store_sql import SCHEMA_VERSION, SqlValue
+from quorum.core.clock import Clock, SystemClock, isoformat_utc
+from quorum.ingestion import store_sql
+from quorum.ingestion.errors import StoreError
+from quorum.ingestion.models import Chunk, NormalizedDocument
+from quorum.ingestion.store_sql import SCHEMA_VERSION, SqlValue
 
 __all__ = ["SCHEMA_VERSION", "ChunkStore", "SQLiteChunkStore"]
 

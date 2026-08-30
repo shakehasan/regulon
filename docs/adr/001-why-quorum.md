@@ -1,4 +1,4 @@
-# ADR-001: Why Regulon exists, and what is in scope
+# ADR-001: Why Quorum exists, and what is in scope
 
 - **Status:** Accepted
 - **Date:** 2026-07-02
@@ -19,7 +19,7 @@ kind.
 
 ## Decision
 
-Build **Regulon**, an original open-source reference platform where the governance control plane
+Build **Quorum**, an original open-source reference platform where the governance control plane
 is the product, not an afterthought:
 
 - A LangGraph supervisor orchestrating specialist agents over a hybrid-retrieval RAG pipeline
@@ -32,8 +32,10 @@ is the product, not an afterthought:
 - One flagship app, **Research Desk**, over exactly two data sources: public-domain SEC EDGAR
   filings and clearly labeled synthetic documents.
 
-The name: a regulon in biology is a set of genes governed as one unit — here, a set of agents
-governed by one control plane.
+The name: a *quorum* is the number of members whose presence makes a deliberative body's decisions
+valid. Many agents deliberate here, but a result only counts once the control plane's conditions
+are met — evidence cited, policy satisfied, guardrails passed, a human reviewer's approval
+recorded. Without those, the system has produced an opinion, not a decision.
 
 ### Out of scope (deliberately)
 

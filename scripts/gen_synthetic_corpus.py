@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate the bundled synthetic corpus of annual-report-style sample documents.
 
-Regulon's data hygiene rule (AGENTS.md, "Public safety") permits exactly two data sources:
+Quorum's data hygiene rule (AGENTS.md, "Public safety") permits exactly two data sources:
 public-domain SEC EDGAR filings, fetched on demand, and synthetic documents labeled ``SYNTHETIC``
 in filename, front matter, and docs. This script writes the second kind, so the demo, the tests,
 and the tutorials always have something to ingest with no network call and no licensing question.
@@ -17,7 +17,7 @@ Output is deterministic: the same ``--seed`` and ``--count`` always produce byte
 regenerating the committed corpus shows up as an empty diff. Each document is seeded from the corpus
 seed plus its own company and fiscal year, so its content does not depend on how many other
 documents were requested. The corpus-shape constants below are pinned in code, not in
-``config/regulon.yaml``, because the generated files are committed: reproducing them must depend on
+``config/quorum.yaml``, because the generated files are committed: reproducing them must depend on
 this script alone and not on a config revision.
 """
 
@@ -60,7 +60,7 @@ WRAP_WIDTH = 100
 VERBATIM_PREFIXES = ("|", "-", "#", ">")
 
 # Ranges the invented figures are drawn from. They shape the sample corpus, which is a committed
-# fixture, rather than Regulon's runtime behavior, which is why they live here and not in config/.
+# fixture, rather than Quorum's runtime behavior, which is why they live here and not in config/.
 REVENUE_RANGE_MUSD = (620.0, 4200.0)
 SEGMENT_WEIGHT_RANGE = (1.0, 3.2)
 SEGMENT_GROWTH_RANGE = (-0.09, 0.24)

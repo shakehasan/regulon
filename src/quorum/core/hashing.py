@@ -33,7 +33,7 @@ def hash_json(obj: Any) -> str:
     return sha256_hex(canonical_json(obj))
 
 
-GENESIS_HASH = sha256_hex(b"regulon-audit-genesis")
+GENESIS_HASH = sha256_hex(b"quorum-audit-genesis")
 
 
 def chain_hash(prev_hash: str, payload: Any) -> str:

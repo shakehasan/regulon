@@ -1,13 +1,13 @@
 # AGENTS.md — Engineering Handbook
 
-Conventions for everyone — human contributors and coding agents — working on Regulon.
+Conventions for everyone — human contributors and coding agents — working on Quorum.
 The complete specification is [PLAN.md](PLAN.md); this file is the day-to-day rulebook.
 When a detail is unspecified, choose the simplest option consistent with these conventions
 and record it as an ADR.
 
 ## What this project is
 
-Regulon is a solo-built, community-oriented open-source **learning resource** for **governed
+Quorum is a solo-built, community-oriented open-source **learning resource** for **governed
 multi-agent RAG**: LangGraph orchestration, hybrid retrieval with citations, layered routing,
 RBAC, hash-chained audit trails, human-in-the-loop approval, and evaluation-gated CI. It exists so
 anyone can run, study, and reuse a complete example of multi-agent systems built to a
@@ -27,8 +27,8 @@ Two constraints follow from that purpose and bind every contribution:
 |---|---|---|
 | `PLAN.md` | Full build spec, milestones M0–M10 with acceptance criteria | Read the current milestone before coding |
 | `config/` | **All** tunables: runtime YAML, safety denylist | Never hardcode a threshold, model name, weight, or budget |
-| `src/regulon/core/` | Config, ids, events, errors, hashing, clock | Shared primitives; keep dependency-free of other subsystems |
-| `src/regulon/<subsystem>/` | One directory per layer (see README architecture table) | Pydantic models at every boundary |
+| `src/quorum/core/` | Config, ids, events, errors, hashing, clock | Shared primitives; keep dependency-free of other subsystems |
+| `src/quorum/<subsystem>/` | One directory per layer (see README architecture table) | Pydantic models at every boundary |
 | `scripts/` | `public_safety_scan.py`, `gen_coverage_badge.py`, data tooling | Stdlib + PyYAML only for the scanner (runs in bare CI) |
 | `tests/` | `unit/`, `integration/`, `adversarial/` | Markers: `integration`, `adversarial` |
 | `docs/adr/` | Architecture decision records | `NNN-title.md`, one per significant choice |
@@ -63,11 +63,11 @@ Every gate above must be green before a PR is opened — CI runs the same set.
 - **Small modules:** under 400 lines; split before you exceed it. Small functions over clever ones.
 - **Docstrings** on public functions, Google style. State behavior and raised exceptions, not
   implementation history.
-- **Errors:** everything Regulon raises derives from `regulon.core.errors.RegulonError`. Add
+- **Errors:** everything Quorum raises derives from `quorum.core.errors.QuorumError`. Add
   subsystem subclasses in that subsystem. Graph nodes **fail closed**: guardrail uncertainty means
   escalate, never pass.
 - **Configuration discipline:** thresholds, model names, weights, and budgets live in `config/`
-  YAML with `REGULON_` env overrides. If you are typing a literal number that tunes behavior,
+  YAML with `QUORUM_` env overrides. If you are typing a literal number that tunes behavior,
   stop and move it to config.
 - **Determinism:** fix seeds in tests and the eval harness; version eval datasets; use the
   injectable `Clock` (`core/clock.py`) instead of calling `datetime.now()` in logic that gets
@@ -75,7 +75,7 @@ Every gate above must be green before a PR is opened — CI runs the same set.
 
 ## Testing
 
-- Coverage ≥ 80% on `src/regulon` — enforced by `make test` and CI. Don't chase 100%; do cover
+- Coverage ≥ 80% on `src/quorum` — enforced by `make test` and CI. Don't chase 100%; do cover
   every public function and every failure path that matters.
 - Unit tests use the `deterministic` provider — never a network call, never a real model.
 - At least one `integration`-marked test per milestone proving the milestone's acceptance path.

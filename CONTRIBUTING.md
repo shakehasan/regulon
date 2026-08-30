@@ -1,6 +1,6 @@
-# Contributing to Regulon
+# Contributing to Quorum
 
-Thanks for your interest in contributing. Regulon is built milestone by milestone against a public
+Thanks for your interest in contributing. Quorum is built milestone by milestone against a public
 specification ([PLAN.md](PLAN.md)); contributions should fit the current milestone or the
 [roadmap](ROADMAP.md).
 
@@ -9,8 +9,8 @@ specification ([PLAN.md](PLAN.md)); contributions should fit the current milesto
 Requirements: Python 3.11+, GNU make, git. (Ollama is needed from M3 onward for real-inference paths.)
 
 ```bash
-git clone https://github.com/shakehasan/regulon.git
-cd regulon
+git clone https://github.com/shakehasan/quorum.git
+cd quorum
 make setup      # venv + editable install + pre-commit hooks
 make ci         # lint + type + test + safety — the same gates CI runs, in the same order
 ```
@@ -21,7 +21,7 @@ Every PR must pass locally before review — `make ci` runs all of it in one com
 
 - `make lint` — ruff check and formatting, line length 120.
 - `make type` — mypy strict on `src/` and `scripts/`.
-- `make test` — pytest with coverage ≥ 80% on `src/regulon`.
+- `make test` — pytest with coverage ≥ 80% on `src/quorum`.
 - `make safety` — the public-safety scan (see below).
 
 CI additionally runs the full `pre-commit` hook suite against every tracked file (not just

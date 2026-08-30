@@ -10,14 +10,14 @@ generator: "scripts/gen_synthetic_corpus.py"
 seed: 20260101
 ---
 
-> **SYNTHETIC DOCUMENT - NOT REAL FINANCIAL DATA.** Halcyon Grid Utilities is a fictional company, and every figure, name, address, and statement below is invented sample data written by `scripts/gen_synthetic_corpus.py` to exercise Regulon's ingestion pipeline. Nothing here is a real filing or a real metric, and nothing here is investment advice.
+> **SYNTHETIC DOCUMENT - NOT REAL FINANCIAL DATA.** Halcyon Grid Utilities is a fictional company, and every figure, name, address, and statement below is invented sample data written by `scripts/gen_synthetic_corpus.py` to exercise Quorum's ingestion pipeline. Nothing here is a real filing or a real metric, and nothing here is investment advice.
 
 # Halcyon Grid Utilities - Annual Report (10-K, SYNTHETIC), Fiscal Year 2023
 
 ## Business Overview
 
 Halcyon Grid Utilities is a fictional regulated electricity distribution, grid services, and
-renewable generation business, invented for Regulon's sample corpus. It is described as reporting
+renewable generation business, invented for Quorum's sample corpus. It is described as reporting
 from a head office in Wexbury, Alderran through 3 segments: Regulated Distribution, Grid Services,
 Renewable Generation. In this invented history it serves 5,411 contracted accounts from 54 service
 locations, staffed by 3,781 full-time equivalents against 3,626 a year earlier.

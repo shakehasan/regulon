@@ -12,8 +12,8 @@ from pathlib import Path
 
 import pytest
 
-from regulon.core.clock import FixedClock
-from regulon.ingestion import (
+from quorum.core.clock import FixedClock
+from quorum.ingestion import (
     Chunk,
     ChunkMetadata,
     DocumentMetadata,
@@ -24,7 +24,7 @@ from regulon.ingestion import (
     make_chunk_id,
     make_document_id,
 )
-from regulon.ingestion.store import SCHEMA_VERSION, ChunkStore, SQLiteChunkStore
+from quorum.ingestion.store import SCHEMA_VERSION, ChunkStore, SQLiteChunkStore
 
 DOC_TEXT = "Item 1. Business\nThe issuer operates two segments.\nItem 1A. Risk Factors\nMarkets move."
 SOURCE_PATH = "data/synthetic/SYNTHETIC-acme-10k.md"

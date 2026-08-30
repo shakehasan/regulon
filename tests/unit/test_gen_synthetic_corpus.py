@@ -14,7 +14,7 @@ from pathlib import Path
 
 import pytest
 
-from regulon.core.config import Settings
+from quorum.core.config import Settings
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS_DIR = REPO_ROOT / "scripts"
@@ -116,7 +116,7 @@ def test_banner_is_the_first_body_line(default_corpus):
 
 
 def test_documents_carry_chunkable_sections(default_corpus, monkeypatch):
-    monkeypatch.setenv("REGULON_CONFIG_FILE", str(REPO_ROOT / "config" / "regulon.yaml"))
+    monkeypatch.setenv("QUORUM_CONFIG_FILE", str(REPO_ROOT / "config" / "quorum.yaml"))
     max_chars = Settings().ingestion.chunking.max_chars
     for name, text in default_corpus.items():
         headings = [line for line in text.splitlines() if line.startswith("## ")]

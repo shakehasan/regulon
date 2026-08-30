@@ -10,12 +10,12 @@ Two rules shape the design:
   code that calls ``urllib``, so tests drive the client with canned bytes and never open a socket.
 * **Every caller identifies itself and waits its turn.** SEC asks automated clients for a
   descriptive ``User-Agent`` and a modest request rate, so each request carries
-  :attr:`~regulon.core.config.EdgarSettings.user_agent` and is spaced by at least
-  :attr:`~regulon.core.config.EdgarSettings.min_request_interval_seconds`.
+  :attr:`~quorum.core.config.EdgarSettings.user_agent` and is spaced by at least
+  :attr:`~quorum.core.config.EdgarSettings.min_request_interval_seconds`.
 
 Failure handling follows one convention: anything that goes wrong with the remote side - a
 transport error, a bad status, malformed JSON, a missing field - surfaces as
-:class:`~regulon.ingestion.errors.EdgarError` naming the URL, never as a raw ``URLError`` or
+:class:`~quorum.ingestion.errors.EdgarError` naming the URL, never as a raw ``URLError`` or
 ``JSONDecodeError``. Arguments that are wrong before any request is made (a blank ticker, a
 non-numeric CIK, ``limit < 1``) raise ``ValueError``.
 """
@@ -29,8 +29,8 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 
-from regulon.core.config import EdgarSettings, Settings
-from regulon.ingestion.edgar_parsing import (
+from quorum.core.config import EdgarSettings, Settings
+from quorum.ingestion.edgar_parsing import (
     FilingRef,
     _decode,
     _filing_refs,
@@ -39,18 +39,18 @@ from regulon.ingestion.edgar_parsing import (
     _normalize_cik,
     _submissions_base_url,
 )
-from regulon.ingestion.errors import EdgarError
+from quorum.ingestion.errors import EdgarError
 
 __all__ = ["EdgarClient", "FilingRef", "UrlOpener", "urllib_opener"]
 """Public surface of the EDGAR client.
 
-:class:`FilingRef` is defined in :mod:`regulon.ingestion.edgar_parsing` and re-exported here so
+:class:`FilingRef` is defined in :mod:`quorum.ingestion.edgar_parsing` and re-exported here so
 callers have one import site for the client and the type it returns.
 """
 
 # Endpoint layout of the public EDGAR API. These are not tunables: they describe how SEC
 # publishes its data, so they live beside the code that builds the URLs. Only the host, the
-# timeout, the rate limit, and the User-Agent are configurable (config/regulon.yaml).
+# timeout, the rate limit, and the User-Agent are configurable (config/quorum.yaml).
 _TICKERS_PATH = "/files/company_tickers.json"
 _SUBMISSIONS_PATH = "/submissions/CIK{cik}.json"
 _ALLOWED_SCHEMES = frozenset({"http", "https"})

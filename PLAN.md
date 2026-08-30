@@ -1,19 +1,19 @@
-# REGULON — Project Specification & Master Build Plan
+# QUORUM — Project Specification & Master Build Plan
 
-This document is the complete engineering specification for Regulon: scope, architecture, quality bar, and an ordered milestone plan with acceptance criteria. Build strictly milestone by milestone. Do not skip acceptance criteria. Do not take shortcuts that violate the Non-Negotiables. When a detail is unspecified, choose the simplest option consistent with the Engineering Conventions and record it as an ADR.
+This document is the complete engineering specification for Quorum: scope, architecture, quality bar, and an ordered milestone plan with acceptance criteria. Build strictly milestone by milestone. Do not skip acceptance criteria. Do not take shortcuts that violate the Non-Negotiables. When a detail is unspecified, choose the simplest option consistent with the Engineering Conventions and record it as an ADR.
 
 ---
 
 ## 1. Project Identity
 
-- **Repo name:** `regulon`
+- **Repo name:** `quorum`
 - **Tagline (repo description):** "Governed multi-agent RAG platform: LangGraph agent orchestration, hybrid retrieval with cross-encoder reranking, adaptive multi-mode routing, RL-tuned route optimization, HITL approvals, RBAC, audit trails, and evaluation-gated CI. Local-first, open source."
-- **One-liner:** Regulon is an open-source reference platform for running multi-agent LLM systems the way regulated industries need them run — every answer grounded and cited, every decision routed and traced, every risky action approved by a human, every release gated by evals.
+- **One-liner:** Quorum is an open-source reference platform for running multi-agent LLM systems the way regulated industries need them run — every answer grounded and cited, every decision routed and traced, every risky action approved by a human, every release gated by evals.
 - **Mission:** a solo-built open-source **learning resource** for the GitHub community. The intention is big and simple: make a complete, governed multi-agent system something anyone can clone, run locally, study end to end, and build on — so people can learn from it and enhance their own work. Hard constraints that follow from this: **zero cost to run** (no accounts, no API keys, no free tiers, no paid or metered dependency anywhere on the default path), and **no business, employer, client, or vendor-product names** in the repo. Where a hosted commercial tool would be the convenient choice, build the free local equivalent instead and record why in an ADR.
 - **Flagship reference app:** *Research Desk* — a multi-agent investment research workflow that ingests public SEC filings and produces citation-backed research briefs, with human approval required before a brief is finalized.
 - **License:** MIT. Copyright (c) 2026 **Shake MD Tareq Hasan**. Use this exact full name in `LICENSE`, `pyproject.toml` authors, package metadata, and the README author line.
 - **Author:** Shake MD Tareq Hasan (GitHub: shakehasan).
-- **Naming note:** "Regulon" (a biology term: a set of genes governed as one unit) = a set of agents governed by one control plane. If the owner prefers a different name, it is a single find-replace; alternates considered: `aegis-agents`, `governet`, `praxa`.
+- **Naming note:** A *quorum* is the number of members whose presence makes a deliberative body's decisions valid. That is precisely the shape of this system: many agents deliberate, but a result only counts when the control plane's conditions are met — evidence retrieved and cited, policy satisfied, guardrails passed, and a human reviewer's approval recorded. An answer without those is not a decision, only an opinion.
 
 ## 2. Non-Negotiables (violating any of these fails the build)
 
@@ -77,9 +77,9 @@ Model gateway providers: `ollama` (default, local, free), `deterministic` (CI on
 - **RBAC:** roles `analyst`, `reviewer`, `admin`; enforced by FastAPI dependencies on every mutating endpoint; simple local token auth (no paid IdP); role capability matrix documented.
 - **Policy engine:** YAML policies evaluated pre- and post-generation (blocked topics, mandatory-citation, sensitivity escalation rules, disclosure footer). Include example policies inspired by common financial-compliance patterns (generic; no firm references).
 - **Redaction:** deterministic PII redactor (emails, phones, SSN-like patterns) on ingest and output; redaction events audited.
-- **Audit log:** append-only JSONL where each record includes the previous record's hash (tamper-evident chain) + `regulon audit verify` CLI command.
-- **HITL approval queue:** SQLite-backed queue + REST endpoints + CLI (`regulon review list|approve|reject`); optional generic webhook notifier (Slack-compatible payload shape, no vendor lock); optional Celery+Redis worker profile for async processing.
-- **MCP server:** expose `ingest`, `research`, `retrieve`, `review_list`, `approve` as MCP tools so any MCP client can drive Regulon; document a Claude Desktop config example.
+- **Audit log:** append-only JSONL where each record includes the previous record's hash (tamper-evident chain) + `quorum audit verify` CLI command.
+- **HITL approval queue:** SQLite-backed queue + REST endpoints + CLI (`quorum review list|approve|reject`); optional generic webhook notifier (Slack-compatible payload shape, no vendor lock); optional Celery+Redis worker profile for async processing.
+- **MCP server:** expose `ingest`, `research`, `retrieve`, `review_list`, `approve` as MCP tools so any MCP client can drive Quorum; document a Claude Desktop config example.
 
 ### 4.7 Evaluation (a headline pillar — this must be unusually strong)
 `evals/` with versioned golden datasets (synthetic + bundled-filing Q&A written for this repo):
@@ -87,14 +87,14 @@ Model gateway providers: `ollama` (default, local, free), `deterministic` (CI on
 - **Generation — RAGAS (required, OSS):** `faithfulness`, `answer_relevancy`, `context_precision`, `context_recall`, configured to use the local judge model and local embeddings so the metrics cost $0 and need no account.
 - **Generation — G-Eval (required, in-repo):** rubric + chain-of-thought judging on a 1–5 scale for what RAGAS does not cover — citation support, evidence sufficiency, numeric accuracy, hallucination-free, compliance tone. Rubrics and weights live in `config/evals.yaml`; the weighted composite feeds the CI gate and the RL reward (§4.5). Judge = local model, temperature 0, fixed seed. Judge/human agreement (Cohen's kappa) on a held-out slice is **reported, not gated**, until M7 sets a baseline.
 - **Citations:** citation precision/recall and uncited-claim rate as first-party checks.
-- **Experiment tracking — local run store (in-repo, free):** every eval run appends git SHA, config hash, dataset version, metrics, machine spec, and timestamp to `reports/eval_runs.jsonl`; `regulon eval compare A B` prints a metric-delta table and `regulon eval history` shows the trend. Human labels for judge calibration come from the approval-queue feedback store (§4.6). **No hosted tracking platform** — every such option requires an account and most meter usage, which would make committed numbers unverifiable for non-subscribers and put a cost between a learner and the project. See ADR-009.
+- **Experiment tracking — local run store (in-repo, free):** every eval run appends git SHA, config hash, dataset version, metrics, machine spec, and timestamp to `reports/eval_runs.jsonl`; `quorum eval compare A B` prints a metric-delta table and `quorum eval history` shows the trend. Human labels for judge calibration come from the approval-queue feedback store (§4.6). **No hosted tracking platform** — every such option requires an account and most meter usage, which would make committed numbers unverifiable for non-subscribers and put a cost between a learner and the project. See ADR-009.
 - **Routing:** routing accuracy vs labeled expected routes; cost-efficiency metric.
 - **Guardrails:** adversarial suite (30+ prompt-injection/leak/PII attacks) with block-rate report.
 - **End-to-end:** golden briefs with structural + citation assertions.
 Two tiers: `make eval` (hermetic, deterministic provider, runs in CI, **hard thresholds fail the build**) and `make eval-real` (real local model; writes `reports/eval_report.md` + `reports/latency_cost.md`; committed to the repo; README links them). CI also validates that committed reports match the current eval schema. **All thresholds live in `config/evals.yaml`** as declared gates (targets, not results) and are calibrated against real baselines in M7.
 
 ### 4.8 Observability & ops
-- OpenTelemetry spans across graph nodes, retrieval, gateway calls; JSONL trace export + optional OTLP endpoint; `regulon trace view <run_id>` renders a local HTML timeline. No hosted tracing backend: the local viewer plus the eval run store (§4.7) cover trace and experiment inspection at zero cost.
+- OpenTelemetry spans across graph nodes, retrieval, gateway calls; JSONL trace export + optional OTLP endpoint; `quorum trace view <run_id>` renders a local HTML timeline. No hosted tracing backend: the local viewer plus the eval run store (§4.7) cover trace and experiment inspection at zero cost.
 - Prometheus `/metrics` (request counts, latencies, token usage, cache hit rate, guardrail blocks, approval throughput); Grafana dashboard JSON committed under `ops/grafana/`.
 - **Cost meter:** per-call token accounting × model price registry → per-run cost summary in API response and reports.
 - Docker: multi-stage `Dockerfile`; `docker-compose.yml` with profiles `core`, `pgvector`, `queue` (Celery+Redis), `observability` (Prometheus+Grafana).
@@ -111,13 +111,13 @@ Python 3.11+ · Pydantic v2 · FastAPI + Uvicorn · Typer CLI · LangGraph (+ La
 ## 6. Repository Layout
 
 ```
-regulon/
+quorum/
 ├── AGENTS.md                  # engineering conventions for contributors and coding agents (generated in M0 from §7)
 ├── README.md                  # per §9 spec
 ├── LICENSE  CHANGELOG.md  CONTRIBUTING.md  SECURITY.md  CODE_OF_CONDUCT.md  ROADMAP.md  CITATION.cff
 ├── .github/ (workflows: ci.yml, safety.yml, release.yml; dependabot.yml; CODEOWNERS; badges/coverage.json; ISSUE_TEMPLATE; PULL_REQUEST_TEMPLATE.md)
 ├── pyproject.toml  Makefile  .env.example  .editorconfig  .pre-commit-config.yaml
-├── src/regulon/
+├── src/quorum/
 │   ├── core/          # config, ids, events, errors, hashing, clock
 │   ├── ingestion/     # loaders, edgar client, chunkers, redaction
 │   ├── retrieval/     # stores (sqlite|pgvector), bm25, fusion, reranker, grader
@@ -144,7 +144,7 @@ regulon/
 
 - Typed everything; `mypy` strict on `src/`; Pydantic models at all boundaries; no bare dicts across module lines.
 - `ruff` clean; line length 120; docstrings on public functions; small modules (<400 lines).
-- Tests: coverage ≥ 80% on `src/regulon`; unit tests use the `deterministic` provider; at least one integration test per milestone; adversarial tests for guardrails.
+- Tests: coverage ≥ 80% on `src/quorum`; unit tests use the `deterministic` provider; at least one integration test per milestone; adversarial tests for guardrails.
 - Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `chore:`, `refactor:`); one milestone = one branch = one PR with a descriptive body; never a single giant commit.
 - Every architecturally significant choice → ADR in `docs/adr/NNN-title.md` (context / decision / alternatives / consequences).
 - All thresholds, model names, weights, budgets live in `config/` YAML + env overrides — no magic numbers in code.
@@ -154,19 +154,19 @@ regulon/
 
 ## 8. Milestones (execute in order; do not start N+1 until N's acceptance passes)
 
-**M0 — Scaffold & governance-of-the-repo.** Repo layout, pyproject, Makefile (`setup lint type test eval demo`), pre-commit, CI (ruff+mypy+pytest+coverage gate+safety scan), safety scan script, LICENSE, CHANGELOG (Keep-a-Changelog), CONTRIBUTING, SECURITY, CoC, ROADMAP seeded with the milestone list, issue/PR templates, AGENTS.md, ADR-001 (why Regulon / scope) + ADR-002 (local-first, real-inference-by-default).
+**M0 — Scaffold & governance-of-the-repo.** Repo layout, pyproject, Makefile (`setup lint type test eval demo`), pre-commit, CI (ruff+mypy+pytest+coverage gate+safety scan), safety scan script, LICENSE, CHANGELOG (Keep-a-Changelog), CONTRIBUTING, SECURITY, CoC, ROADMAP seeded with the milestone list, issue/PR templates, AGENTS.md, ADR-001 (why Quorum / scope) + ADR-002 (local-first, real-inference-by-default).
 *Accept:* fresh clone → `make setup && make lint type test` green; CI green; safety scan runs in CI.
 
-**M1 — Ingestion & knowledge base.** EDGAR fetch script, bundled sample filings + synthetic corpus generator, normalization, chunking with metadata, redaction-on-ingest, SQLite store, `regulon ingest` CLI.
-*Accept:* `regulon ingest data/samples` reports chunk counts; unit tests for chunker/redactor; ADR-003 (chunking strategy).
+**M1 — Ingestion & knowledge base.** EDGAR fetch script, bundled sample filings + synthetic corpus generator, normalization, chunking with metadata, redaction-on-ingest, SQLite store, `quorum ingest` CLI.
+*Accept:* `quorum ingest data/samples` reports chunk counts; unit tests for chunker/redactor; ADR-003 (chunking strategy).
 
 **M2 — Hybrid retrieval.** Dense + BM25 + RRF + cross-encoder rerank + relevance grading + evidence bundles with citations; pgvector store behind the same interface + compose profile; retrieval eval suite with recall@k/MRR/nDCG.
-*Accept:* `regulon retrieve "<query>"` returns cited evidence; `make eval` retrieval gates pass; ADR-004 (hybrid fusion & reranking choices).
+*Accept:* `quorum retrieve "<query>"` returns cited evidence; `make eval` retrieval gates pass; ADR-004 (hybrid fusion & reranking choices).
 
 **M3 — Model gateway + real inference.** Provider adapters (`ollama`, `deterministic`, generic `http`), model registry with cost/latency metadata, token & cost accounting, structured-output helper, health checks.
-*Accept:* with Ollama running, `regulon ask "<q>"` streams a real grounded answer with citations and prints cost/latency; hermetic tests pass without Ollama; ADR-005 (gateway design).
+*Accept:* with Ollama running, `quorum ask "<q>"` streams a real grounded answer with citations and prints cost/latency; hermetic tests pass without Ollama; ADR-005 (gateway design).
 
-**M4 — Agents & orchestration.** LangGraph supervisor + 5 specialists, typed state, budgets, bounded critic loop, HITL checkpoint node, structured run events, `regulon research "<task>"` producing a draft brief into the approval queue.
+**M4 — Agents & orchestration.** LangGraph supervisor + 5 specialists, typed state, budgets, bounded critic loop, HITL checkpoint node, structured run events, `quorum research "<task>"` producing a draft brief into the approval queue.
 *Accept:* end-to-end real run yields a cited brief in `pending_review`; integration test with deterministic provider covers the full graph; ADR-006 (supervisor pattern & state design).
 
 **M5 — Routing subsystem.** Rules, semantic router, cost-aware model routing with budget caps, policy routing, fallback chains, semantic cache; `RouteDecision` records in traces; routing eval suite.
@@ -175,7 +175,7 @@ regulon/
 **M6 — Governance control plane.** RBAC + token auth, policy engine, output redaction, hash-chained audit log + `audit verify`, approval REST+CLI, webhook notifier, optional Celery profile, MCP server, FastAPI app tying it together, threat_model.md.
 *Accept:* role-based access enforced in API tests; audit chain verifies; approve/reject flow works end-to-end incl. via MCP; adversarial guardrail suite ≥ target block rate; ADR-008 (audit & HITL design).
 
-**M7 — Evaluation program.** Full suites per §4.7 (RAGAS + G-Eval judges, retrieval, citations, routing, guardrails, end-to-end), versioned golden datasets, CI hard gates read from `config/evals.yaml`, threshold calibration against real baselines, local eval run store + `regulon eval compare|history`, `make eval-real` producing committed `reports/eval_report.md` + `reports/latency_cost.md`, `docs/eval_methodology.md` incl. judge/human agreement.
+**M7 — Evaluation program.** Full suites per §4.7 (RAGAS + G-Eval judges, retrieval, citations, routing, guardrails, end-to-end), versioned golden datasets, CI hard gates read from `config/evals.yaml`, threshold calibration against real baselines, local eval run store + `quorum eval compare|history`, `make eval-real` producing committed `reports/eval_report.md` + `reports/latency_cost.md`, `docs/eval_methodology.md` incl. judge/human agreement.
 *Accept:* CI fails if any gate regresses; committed reports exist with real numbers + config hash; the entire suite runs offline with no account or API key; README links the reports; ADR-009 (eval stack & gates) updated with calibrated thresholds.
 
 **M8 — Observability & ops.** OTel spans, trace HTML viewer, Prometheus metrics, Grafana dashboard JSON, Dockerfile + compose profiles, k8s manifests (kubeconform in CI), Locust + `make bench` → `reports/load_test.md`.
@@ -233,7 +233,7 @@ All images original/generated for this repo. Every number traces to a committed 
 
 ## 11. Execution Workflow
 
-1. Create the empty GitHub repo `regulon`, clone it, and add this file at the root as `PLAN.md`.
+1. Create the empty GitHub repo `quorum`, clone it, and add this file at the root as `PLAN.md`.
 2. Work one milestone at a time: read this plan fully, execute only the current milestone, follow §7 conventions strictly, use a branch and PR with conventional commits, and stop when that milestone's acceptance criteria pass with verification output.
 3. Review every milestone before merging: run the acceptance commands, read the diffs, fix what needs fixing.
 4. Merge at a steady cadence — 2–3 milestones per week over 4–6 weeks, never in one burst. Track ROADMAP items as GitHub Issues and close them via PRs.

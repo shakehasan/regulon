@@ -1,13 +1,13 @@
 import pytest
 
-from regulon.core.errors import ConfigError, RegulonError
+from quorum.core.errors import ConfigError, QuorumError
 
 
 def test_hierarchy():
-    assert issubclass(ConfigError, RegulonError)
-    assert issubclass(RegulonError, Exception)
+    assert issubclass(ConfigError, QuorumError)
+    assert issubclass(QuorumError, Exception)
 
 
 def test_catchable_as_base():
-    with pytest.raises(RegulonError):
+    with pytest.raises(QuorumError):
         raise ConfigError("missing config key")

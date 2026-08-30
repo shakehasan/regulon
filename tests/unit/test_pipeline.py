@@ -13,18 +13,18 @@ from pathlib import Path
 
 import pytest
 
-from regulon.core.config import ChunkingSettings, IngestionSettings, RedactionSettings, Settings
-from regulon.ingestion.errors import StoreError
-from regulon.ingestion.loaders import load_document
-from regulon.ingestion.models import (
+from quorum.core.config import ChunkingSettings, IngestionSettings, RedactionSettings, Settings
+from quorum.ingestion.errors import StoreError
+from quorum.ingestion.loaders import load_document
+from quorum.ingestion.models import (
     Chunk,
     IngestReport,
     NormalizedDocument,
     RedactionEvent,
     make_document_id,
 )
-from regulon.ingestion.pipeline import IngestionPipeline, _build_offset_map, _discover, _skip_entry
-from regulon.ingestion.store import ChunkStore, SQLiteChunkStore
+from quorum.ingestion.pipeline import IngestionPipeline, _build_offset_map, _discover, _skip_entry
+from quorum.ingestion.store import ChunkStore, SQLiteChunkStore
 
 # Built by concatenation so the literal never appears in the repository.
 EMAIL = "analyst" + "@" + "example.com"
@@ -54,7 +54,7 @@ PLAIN_TEXT = "Operating Notes\n\nThe segment recorded steady demand across the p
 
 
 class RecordingStore:
-    """A :class:`~regulon.ingestion.store.ChunkStore` that records the calls it receives."""
+    """A :class:`~quorum.ingestion.store.ChunkStore` that records the calls it receives."""
 
     def __init__(self, *, fail_on_document: bool = False, fail_on_chunks: bool = False) -> None:
         """Build a store that records every call and optionally fails one of the writes."""

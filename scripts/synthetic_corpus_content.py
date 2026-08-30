@@ -32,7 +32,7 @@ DISCLAIMER = (
 BANNER = (
     "> **SYNTHETIC DOCUMENT - NOT REAL FINANCIAL DATA.** {company} is a fictional company, and every"
     " figure, name, address, and statement below is invented sample data written by"
-    f" `{GENERATOR_PATH}` to exercise Regulon's ingestion pipeline. Nothing here is a real filing or"
+    f" `{GENERATOR_PATH}` to exercise Quorum's ingestion pipeline. Nothing here is a real filing or"
     " a real metric, and nothing here is investment advice."
 )
 
@@ -188,7 +188,7 @@ PROFILES: tuple[CompanyProfile, ...] = (
 )
 
 OVERVIEW = """\
-{company} is a fictional {industry} business, invented for Regulon's sample corpus. It is described
+{company} is a fictional {industry} business, invented for Quorum's sample corpus. It is described
 as reporting from a head office in {headquarters} through {segment_count} segments:
 {segment_list}. In this invented history it serves {accounts} contracted accounts from {locations}
 service locations, staffed by {employees} full-time equivalents against {prior_employees} a year

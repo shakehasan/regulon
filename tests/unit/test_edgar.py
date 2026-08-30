@@ -11,10 +11,10 @@ from urllib.error import HTTPError, URLError
 
 import pytest
 
-from regulon.core.config import EdgarSettings
-from regulon.ingestion import EdgarError
-from regulon.ingestion import edgar as edgar_module
-from regulon.ingestion.edgar import EdgarClient, FilingRef, urllib_opener
+from quorum.core.config import EdgarSettings
+from quorum.ingestion import EdgarError
+from quorum.ingestion import edgar as edgar_module
+from quorum.ingestion.edgar import EdgarClient, FilingRef, urllib_opener
 
 CIK_DIGITS = "1234567"
 PADDED_CIK = "0001234567"
@@ -83,7 +83,7 @@ class FakeResponse:
 
 def build_settings(**overrides) -> EdgarSettings:
     fields = {
-        "user_agent": "regulon-unit-tests (offline)",
+        "user_agent": "quorum-unit-tests (offline)",
         "base_url": "https://www.sec.gov",
         "request_timeout_seconds": 7.5,
         "min_request_interval_seconds": 0.0,
@@ -193,7 +193,7 @@ def test_lookup_cik_requests_the_company_index_with_the_configured_user_agent():
 
     url, headers, timeout = opener.requests[0]
     assert url == TICKERS_URL
-    assert headers["User-Agent"] == "regulon-unit-tests (offline)"
+    assert headers["User-Agent"] == "quorum-unit-tests (offline)"
     assert headers["Accept-Encoding"] == "identity"
     assert timeout == 7.5
 
@@ -452,7 +452,7 @@ def test_rate_limiting_is_skipped_when_the_interval_is_zero():
 
 def test_urllib_opener_refuses_a_non_http_scheme():
     with pytest.raises(EdgarError, match="http or https"):
-        urllib_opener("file:///etc/passwd", {"User-Agent": "regulon-unit-tests"}, 1.0)
+        urllib_opener("file:///etc/passwd", {"User-Agent": "quorum-unit-tests"}, 1.0)
 
 
 def test_urllib_opener_sends_the_headers_and_timeout(monkeypatch):
@@ -466,10 +466,10 @@ def test_urllib_opener_sends_the_headers_and_timeout(monkeypatch):
 
     monkeypatch.setattr(edgar_module, "urlopen", fake_urlopen)
 
-    body = urllib_opener(TICKERS_URL, {"User-Agent": "regulon-unit-tests"}, 3.0)
+    body = urllib_opener(TICKERS_URL, {"User-Agent": "quorum-unit-tests"}, 3.0)
 
     assert body == b"filing bytes"
-    assert captured == {"url": TICKERS_URL, "user_agent": "regulon-unit-tests", "timeout": 3.0}
+    assert captured == {"url": TICKERS_URL, "user_agent": "quorum-unit-tests", "timeout": 3.0}
 
 
 def test_client_uses_the_urllib_opener_by_default(monkeypatch):

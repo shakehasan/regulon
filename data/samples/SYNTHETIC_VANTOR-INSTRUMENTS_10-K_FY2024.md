@@ -10,14 +10,14 @@ generator: "scripts/gen_synthetic_corpus.py"
 seed: 20260101
 ---
 
-> **SYNTHETIC DOCUMENT - NOT REAL FINANCIAL DATA.** Vantor Clinical Instruments is a fictional company, and every figure, name, address, and statement below is invented sample data written by `scripts/gen_synthetic_corpus.py` to exercise Regulon's ingestion pipeline. Nothing here is a real filing or a real metric, and nothing here is investment advice.
+> **SYNTHETIC DOCUMENT - NOT REAL FINANCIAL DATA.** Vantor Clinical Instruments is a fictional company, and every figure, name, address, and statement below is invented sample data written by `scripts/gen_synthetic_corpus.py` to exercise Quorum's ingestion pipeline. Nothing here is a real filing or a real metric, and nothing here is investment advice.
 
 # Vantor Clinical Instruments - Annual Report (10-K, SYNTHETIC), Fiscal Year 2024
 
 ## Business Overview
 
 Vantor Clinical Instruments is a fictional laboratory instruments, consumables, and service
-contracts business, invented for Regulon's sample corpus. It is described as reporting from a head
+contracts business, invented for Quorum's sample corpus. It is described as reporting from a head
 office in Ellisfield, Northmark through 3 segments: Analytical Instruments, Consumables and
 Reagents, Service Contracts. In this invented history it serves 6,947 contracted accounts from 38
 service locations, staffed by 5,443 full-time equivalents against 5,523 a year earlier.

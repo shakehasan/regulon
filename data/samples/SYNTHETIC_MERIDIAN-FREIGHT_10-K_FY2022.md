@@ -10,14 +10,14 @@ generator: "scripts/gen_synthetic_corpus.py"
 seed: 20260101
 ---
 
-> **SYNTHETIC DOCUMENT - NOT REAL FINANCIAL DATA.** Meridian Freight Systems is a fictional company, and every figure, name, address, and statement below is invented sample data written by `scripts/gen_synthetic_corpus.py` to exercise Regulon's ingestion pipeline. Nothing here is a real filing or a real metric, and nothing here is investment advice.
+> **SYNTHETIC DOCUMENT - NOT REAL FINANCIAL DATA.** Meridian Freight Systems is a fictional company, and every figure, name, address, and statement below is invented sample data written by `scripts/gen_synthetic_corpus.py` to exercise Quorum's ingestion pipeline. Nothing here is a real filing or a real metric, and nothing here is investment advice.
 
 # Meridian Freight Systems - Annual Report (10-K, SYNTHETIC), Fiscal Year 2022
 
 ## Business Overview
 
 Meridian Freight Systems is a fictional intermodal freight, contract warehousing, and last-mile
-delivery business, invented for Regulon's sample corpus. It is described as reporting from a head
+delivery business, invented for Quorum's sample corpus. It is described as reporting from a head
 office in Port Calder, Alderran through 3 segments: Intermodal Transport, Contract Warehousing,
 Last-Mile Delivery. In this invented history it serves 5,660 contracted accounts from 20 service
 locations, staffed by 11,112 full-time equivalents against 11,128 a year earlier.

@@ -7,8 +7,8 @@ strings only, never a realistic email, phone, or identifier literal.
 import pytest
 from pydantic import ValidationError
 
-from regulon.core.errors import RegulonError
-from regulon.ingestion import (
+from quorum.core.errors import QuorumError
+from quorum.ingestion import (
     REDACTION_KINDS,
     Chunk,
     ChunkMetadata,
@@ -374,7 +374,7 @@ def test_ingestion_errors_share_one_catchable_base(error_type):
         raise error_type("boom")
 
 
-def test_ingestion_error_derives_from_regulon_error():
-    assert issubclass(IngestionError, RegulonError)
-    with pytest.raises(RegulonError):
+def test_ingestion_error_derives_from_quorum_error():
+    assert issubclass(IngestionError, QuorumError)
+    with pytest.raises(QuorumError):
         raise StoreError("cannot open store")

@@ -1,6 +1,6 @@
 """Structured event base model.
 
-Every meaningful action in Regulon (model call, route decision, retrieval, guardrail verdict,
+Every meaningful action in Quorum (model call, route decision, retrieval, guardrail verdict,
 approval) is emitted as a typed event. Subsystems subclass :class:`BaseEvent` with their own
 payload fields; this module defines only the shared envelope.
 """
@@ -11,7 +11,7 @@ from datetime import UTC, datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from regulon.core.ids import new_event_id
+from quorum.core.ids import new_event_id
 
 
 def _utc_now() -> datetime:

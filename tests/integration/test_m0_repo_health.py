@@ -25,11 +25,11 @@ REQUIRED_FILES = [
     ".github/workflows/safety.yml",
     ".github/workflows/release.yml",
     ".github/PULL_REQUEST_TEMPLATE.md",
-    "docs/adr/001-why-regulon.md",
+    "docs/adr/001-why-quorum.md",
     "docs/adr/002-local-first-real-inference.md",
     "scripts/public_safety_scan.py",
     "config/safety.yaml",
-    "config/regulon.yaml",
+    "config/quorum.yaml",
 ]
 
 

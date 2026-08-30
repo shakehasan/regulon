@@ -1,7 +1,7 @@
-"""Load source files and normalize them into :class:`~regulon.ingestion.models.NormalizedDocument`.
+"""Load source files and normalize them into :class:`~quorum.ingestion.models.NormalizedDocument`.
 
 This is the first stage of ingestion: it turns a ``.txt``, ``.md``, ``.html``, or ``.pdf`` file
-into clean plain text plus a :class:`~regulon.ingestion.models.Section` map that later stages
+into clean plain text plus a :class:`~quorum.ingestion.models.Section` map that later stages
 (redaction, chunking, retrieval) index with character offsets. Three properties the rest of the
 pipeline relies on:
 
@@ -28,8 +28,8 @@ import yaml
 from pydantic import ValidationError
 from pypdf import PdfReader
 
-from regulon.ingestion.errors import DocumentParseError, UnsupportedSourceError
-from regulon.ingestion.models import (
+from quorum.ingestion.errors import DocumentParseError, UnsupportedSourceError
+from quorum.ingestion.models import (
     DocumentMetadata,
     NormalizedDocument,
     Section,
@@ -54,7 +54,7 @@ _FRONT_MATTER_FIELDS: Final[Mapping[str, str]] = {
     "is_synthetic": "is_synthetic",
 }
 
-# The constants below are not behaviour tunables (those live in config/regulon.yaml): they define
+# The constants below are not behaviour tunables (those live in config/quorum.yaml): they define
 # the *grammar* this parser recognizes, so changing one changes the section boundaries and ids of
 # every document already ingested. They are pinned next to the code that uses them, in the same
 # spirit as the id width in models.py.

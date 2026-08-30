@@ -1,6 +1,6 @@
-# Regulon Roadmap
+# Quorum Roadmap
 
-Regulon is built in ordered milestones with explicit acceptance criteria (full spec in
+Quorum is built in ordered milestones with explicit acceptance criteria (full spec in
 [PLAN.md](PLAN.md) §8). A milestone is "Done" only when its acceptance criteria pass with
 verification output. Each milestone is one branch and one PR.
 
@@ -9,15 +9,15 @@ verification output. Each milestone is one branch and one PR.
 - [x] **M0 — Scaffold & repo governance.** Layout, tooling, CI with coverage gate and safety scan,
       governance docs, ADR-001/002. *(done 2026-07-02)*
 - [x] **M1 — Ingestion & knowledge base.** EDGAR fetch, bundled + synthetic corpora, chunking with
-      metadata, redaction-on-ingest, SQLite store, `regulon ingest`. ADR-003.
-      *(done 2026-08-05 — `regulon ingest data/samples` reports chunk counts; unit tests cover the
+      metadata, redaction-on-ingest, SQLite store, `quorum ingest`. ADR-003.
+      *(done 2026-08-05 — `quorum ingest data/samples` reports chunk counts; unit tests cover the
       chunker and redactor; [ADR-003](docs/adr/003-chunking-strategy.md) records the strategy.)*
 - [ ] **M2 — Hybrid retrieval.** Dense + BM25 + RRF + cross-encoder rerank + grading + cited evidence
       bundles; pgvector profile; retrieval eval gates. ADR-004.
 - [ ] **M3 — Model gateway + real inference.** Provider adapters (ollama default, deterministic for CI),
-      model registry, token/cost accounting, `regulon ask`. ADR-005.
+      model registry, token/cost accounting, `quorum ask`. ADR-005.
 - [ ] **M4 — Agents & orchestration.** LangGraph supervisor + 5 specialists, typed state, budgets,
-      bounded critic loop, HITL checkpoint, `regulon research`. ADR-006.
+      bounded critic loop, HITL checkpoint, `quorum research`. ADR-006.
 - [ ] **M5 — Routing subsystem.** Rules, semantic, cost-aware, policy, fallback chains, semantic cache;
       `RouteDecision` records; routing eval gates. ADR-007.
 - [ ] **M6 — Governance control plane.** RBAC, policy engine, redaction, hash-chained audit log,

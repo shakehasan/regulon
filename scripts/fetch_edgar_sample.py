@@ -2,7 +2,7 @@
 """Fetch real SEC EDGAR filings into a local corpus directory, on demand.
 
 **This script requires network access. It is never run in CI and never run by the test suite** -
-the EDGAR client it drives (``regulon.ingestion.edgar``) is unit-tested with an injected fake
+the EDGAR client it drives (``quorum.ingestion.edgar``) is unit-tested with an injected fake
 opener, so the automated gates stay hermetic. Run this yourself when you want real filings to
 ingest; everything else in the repo works without it.
 
@@ -21,7 +21,7 @@ Usage::
 
 SEC asks automated callers to identify themselves. Set an identifying User-Agent first::
 
-    export REGULON_INGESTION__EDGAR__USER_AGENT="your-name (https://github.com/your-handle)"
+    export QUORUM_INGESTION__EDGAR__USER_AGENT="your-name (https://github.com/your-handle)"
 
 The script prints a warning and keeps going if that variable is still the generic default.
 """
@@ -36,15 +36,15 @@ from pathlib import Path
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
 
-from regulon.core.clock import Clock, SystemClock, isoformat_utc
-from regulon.core.config import EdgarSettings, Settings
-from regulon.ingestion.edgar import EdgarClient, FilingRef
-from regulon.ingestion.errors import EdgarError
+from quorum.core.clock import Clock, SystemClock, isoformat_utc
+from quorum.core.config import EdgarSettings, Settings
+from quorum.ingestion.edgar import EdgarClient, FilingRef
+from quorum.ingestion.errors import EdgarError
 
 _DEFAULT_OUT_DIR = Path("data") / "edgar"
 _DEFAULT_FORM = "10-K"
 _DEFAULT_LIMIT = 1
-_UA_ENV_VAR = "REGULON_INGESTION__EDGAR__USER_AGENT"
+_UA_ENV_VAR = "QUORUM_INGESTION__EDGAR__USER_AGENT"
 _UA_EXAMPLE = "your-name (https://github.com/your-handle)"
 # Extensions kept as HTML; anything else is stored as plain text so the ingestion parser can
 # pick a source kind from the file name alone.

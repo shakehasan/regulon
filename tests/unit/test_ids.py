@@ -2,7 +2,7 @@ import re
 
 import pytest
 
-from regulon.core.ids import new_event_id, new_id, new_run_id
+from quorum.core.ids import new_event_id, new_id, new_run_id
 
 ID_RE = re.compile(r"^[a-z][a-z0-9]{0,15}_[0-9a-f]{20}$")
 

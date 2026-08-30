@@ -13,7 +13,7 @@ Exit code 0 means clean; 1 means violations were found (each printed as
 ``path:line: [pattern-name] matched text``); 2 means the scanner itself failed.
 
 The scanner is intentionally dependency-light (stdlib + PyYAML) so it can run in a
-bare CI job without installing the regulon package.
+bare CI job without installing the quorum package.
 """
 
 from __future__ import annotations

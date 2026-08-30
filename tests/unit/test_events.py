@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from regulon.core.events import BaseEvent
+from quorum.core.events import BaseEvent
 
 
 def test_event_defaults():

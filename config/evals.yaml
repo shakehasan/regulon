@@ -1,4 +1,4 @@
-# Regulon evaluation configuration: suites, judges, and CI gate thresholds.
+# Quorum evaluation configuration: suites, judges, and CI gate thresholds.
 #
 # CONVENTION (AGENTS.md): every threshold lives here, never as a literal in code.
 # The hermetic tier (`make eval`) reads these gates and FAILS THE BUILD when a metric
@@ -95,8 +95,8 @@ reporting:
 experiment_tracking:
   # Cross-run comparison ("did quality move between these two commits?") is done by an
   # in-repo run store — no hosted service, no account, no API key, no cost. Every eval run
-  # is appended as JSONL keyed by git SHA + config hash; `regulon eval compare A B` prints
-  # the metric delta table and `regulon eval history` plots a trend.
+  # is appended as JSONL keyed by git SHA + config hash; `quorum eval compare A B` prints
+  # the metric delta table and `quorum eval history` plots a trend.
   #
   # There is deliberately no hosted-backend option: a paid or account-gated service would
   # make headline numbers unreproducible for anyone who did not sign up, which defeats the

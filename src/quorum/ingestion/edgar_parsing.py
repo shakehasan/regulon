@@ -1,12 +1,12 @@
 """Parsing and URL helpers for the EDGAR client.
 
-Split out of :mod:`regulon.ingestion.edgar` so the client module stays inside the repository's
+Split out of :mod:`quorum.ingestion.edgar` so the client module stays inside the repository's
 400-line ceiling (AGENTS.md). Everything here is a pure function of its arguments: no sockets, no
 clock, no client state. That is what makes the awkward part of talking to EDGAR - a JSON feed of
 parallel arrays, two hosts, and dates that may or may not be present - testable in isolation.
 
 Every failure names the URL it came from and surfaces as
-:class:`~regulon.ingestion.errors.EdgarError`, never as a raw ``JSONDecodeError`` or ``KeyError``.
+:class:`~quorum.ingestion.errors.EdgarError`, never as a raw ``JSONDecodeError`` or ``KeyError``.
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ from urllib.parse import urlsplit, urlunsplit
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from regulon.ingestion.errors import EdgarError
+from quorum.ingestion.errors import EdgarError
 
 # Endpoint layout of the public EDGAR API. Not tunables: they describe how SEC publishes its data.
 _ARCHIVES_PATH = "/Archives/edgar/data/{cik}/{accession}/{document}"

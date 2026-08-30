@@ -1,16 +1,16 @@
 """Exceptions raised by the ingestion subsystem.
 
-Every error here derives from :class:`~regulon.core.errors.RegulonError` through
+Every error here derives from :class:`~quorum.core.errors.QuorumError` through
 :class:`IngestionError`, so a caller can catch the whole subsystem with one except clause
 while still distinguishing an unsupported input from a fetch failure.
 """
 
 from __future__ import annotations
 
-from regulon.core.errors import RegulonError
+from quorum.core.errors import QuorumError
 
 
-class IngestionError(RegulonError):
+class IngestionError(QuorumError):
     """Base class for every ingestion failure."""
 
 

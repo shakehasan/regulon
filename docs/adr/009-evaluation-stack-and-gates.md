@@ -5,7 +5,7 @@
 
 ## Context
 
-Evaluation is a headline pillar of Regulon (PLAN.md §4.7): releases are gated by measured quality,
+Evaluation is a headline pillar of Quorum (PLAN.md §4.7): releases are gated by measured quality,
 not judgement calls. That requires answering three separate questions, which are often conflated:
 
 1. **Is the retrieval good?** — a ranking problem, measurable with classical IR metrics against
@@ -17,7 +17,7 @@ not judgement calls. That requires answering three separate questions, which are
 
 Two constraints cut across all of them. Non-Negotiable #3: the runtime requires zero paid
 services, zero API keys, zero accounts. Non-Negotiable #4: never fabricate metrics. Together they
-mean every headline number must be reproducible, by a stranger, offline, for free. Regulon exists
+mean every headline number must be reproducible, by a stranger, offline, for free. Quorum exists
 as a learning resource — a metric someone cannot regenerate on their own machine teaches them
 nothing.
 
@@ -35,11 +35,11 @@ than bespoke.
 
 ### 2. G-Eval — rubric judging for what RAGAS does not cover (in-repo)
 
-RAGAS does not score the things Regulon's governance claims depend on: whether every claim carries
+RAGAS does not score the things Quorum's governance claims depend on: whether every claim carries
 a usable citation, whether the cited span actually supports it, whether extracted figures are
 arithmetically right, and whether compliance framing survived. We implement a G-Eval-style judge
 (rubric prompt + chain-of-thought + a 1–5 score per dimension) in
-`src/regulon/evals/judges/geval.py`, run with a fixed seed at temperature 0 against the local
+`src/quorum/evals/judges/geval.py`, run with a fixed seed at temperature 0 against the local
 model. G-Eval is a published method, not a product — implementing it directly keeps the stack
 free and the scoring auditable.
 
@@ -55,13 +55,13 @@ gating on an uncalibrated instrument would be theater.
 ### 3. Local run store — experiment tracking without a service
 
 Every eval run appends a record (git SHA, config hash, dataset version, all metrics, machine spec,
-timestamp) to `reports/eval_runs.jsonl`. Two CLI commands read it: `regulon eval compare A B`
-prints a metric-delta table between any two runs, and `regulon eval history` renders a trend over
+timestamp) to `reports/eval_runs.jsonl`. Two CLI commands read it: `quorum eval compare A B`
+prints a metric-delta table between any two runs, and `quorum eval history` renders a trend over
 time. Human labels for judge calibration come from the approval queue's feedback store (M6), which
 already exists for governance reasons.
 
 This is a deliberate build-not-buy: hosted experiment-tracking platforms offer a better UI, but
-all of them require an account and most meter usage. Depending on one would make Regulon's
+all of them require an account and most meter usage. Depending on one would make Quorum's
 headline numbers unreproducible for anyone who has not signed up, and would put a cost between a
 learner and the project. A JSONL file plus two commands covers the actual requirement —
 "did this commit regress?" — at zero cost, with no vendor in the loop.

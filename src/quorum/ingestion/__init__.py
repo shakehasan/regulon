@@ -2,19 +2,19 @@
 
 This package's public contract - the models every stage exchanges, the deterministic id
 builders, and the error hierarchy - is re-exported here, so downstream subsystems import from
-``regulon.ingestion`` rather than reaching into individual modules.
+``quorum.ingestion`` rather than reaching into individual modules.
 """
 
 from __future__ import annotations
 
-from regulon.ingestion.errors import (
+from quorum.ingestion.errors import (
     DocumentParseError,
     EdgarError,
     IngestionError,
     StoreError,
     UnsupportedSourceError,
 )
-from regulon.ingestion.models import (
+from quorum.ingestion.models import (
     REDACTION_KINDS,
     Chunk,
     ChunkMetadata,

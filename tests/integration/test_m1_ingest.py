@@ -1,7 +1,7 @@
 """M1 integration test: a corpus on disk becomes a queryable knowledge base.
 
-This is the milestone's acceptance path end to end - ``regulon ingest <path>`` reports chunk
-counts - exercised twice: once through :class:`~regulon.ingestion.pipeline.IngestionPipeline`
+This is the milestone's acceptance path end to end - ``quorum ingest <path>`` reports chunk
+counts - exercised twice: once through :class:`~quorum.ingestion.pipeline.IngestionPipeline`
 against a temporary SQLite file, and once through the Typer application. The fixtures are built
 here in ``tmp_path`` rather than read from ``data/samples``, so the test states its own inputs and
 never touches a network, a model, or a path outside pytest's temporary directory.
@@ -21,10 +21,10 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from regulon.cli.main import app
-from regulon.ingestion.models import IngestReport
-from regulon.ingestion.pipeline import IngestionPipeline
-from regulon.ingestion.store import SQLiteChunkStore
+from quorum.cli.main import app
+from quorum.ingestion.models import IngestReport
+from quorum.ingestion.pipeline import IngestionPipeline
+from quorum.ingestion.store import SQLiteChunkStore
 
 pytestmark = pytest.mark.integration
 
@@ -101,7 +101,7 @@ def stored_document_texts(database: Path) -> dict[str, str]:
 
 
 def test_ingest_reports_documents_chunks_and_redactions(corpus: Path, tmp_path: Path):
-    report = ingest(corpus, tmp_path / "regulon.sqlite3")
+    report = ingest(corpus, tmp_path / "quorum.sqlite3")
 
     assert report.documents_ingested == 2
     assert report.chunks_created > 2
@@ -114,7 +114,7 @@ def test_ingest_reports_documents_chunks_and_redactions(corpus: Path, tmp_path: 
 
 
 def test_unsupported_file_is_skipped_with_its_reason(corpus: Path, tmp_path: Path):
-    report = ingest(corpus, tmp_path / "regulon.sqlite3")
+    report = ingest(corpus, tmp_path / "quorum.sqlite3")
 
     assert len(report.skipped) == 1
     assert report.skipped[0].startswith((corpus / "logo.xyz").as_posix() + ": ")
@@ -122,7 +122,7 @@ def test_unsupported_file_is_skipped_with_its_reason(corpus: Path, tmp_path: Pat
 
 
 def test_knowledge_base_holds_exactly_what_the_report_claims(corpus: Path, tmp_path: Path):
-    database = tmp_path / "regulon.sqlite3"
+    database = tmp_path / "quorum.sqlite3"
 
     report = ingest(corpus, database)
 
@@ -133,7 +133,7 @@ def test_knowledge_base_holds_exactly_what_the_report_claims(corpus: Path, tmp_p
 
 
 def test_no_unredacted_address_survives_into_the_store(corpus: Path, tmp_path: Path):
-    database = tmp_path / "regulon.sqlite3"
+    database = tmp_path / "quorum.sqlite3"
 
     ingest(corpus, database)
 
@@ -161,7 +161,7 @@ def test_no_column_of_the_knowledge_base_holds_unredacted_pii(tmp_path: Path):
         f"---\ntitle: Investor contact {EMAIL}\n---\n\n# Reach {EMAIL} for details\n\nBody paragraph.\n",
         encoding="utf-8",
     )
-    database = tmp_path / "regulon.sqlite3"
+    database = tmp_path / "quorum.sqlite3"
 
     report = ingest(root, database)
 
@@ -183,7 +183,7 @@ def test_no_column_of_the_knowledge_base_holds_unredacted_pii(tmp_path: Path):
 
 
 def test_stored_chunk_offsets_slice_the_stored_document_text(corpus: Path, tmp_path: Path):
-    database = tmp_path / "regulon.sqlite3"
+    database = tmp_path / "quorum.sqlite3"
 
     ingest(corpus, database)
 
@@ -196,7 +196,7 @@ def test_stored_chunk_offsets_slice_the_stored_document_text(corpus: Path, tmp_p
 
 
 def test_reingesting_the_same_corpus_changes_nothing(corpus: Path, tmp_path: Path):
-    database = tmp_path / "regulon.sqlite3"
+    database = tmp_path / "quorum.sqlite3"
 
     first = ingest(corpus, database)
     with SQLiteChunkStore(database) as store:
@@ -248,12 +248,12 @@ def test_cli_ingests_a_single_file_without_a_skipped_section(corpus: Path, tmp_p
 
 def test_cli_defaults_the_database_to_the_configured_data_dir(corpus: Path, tmp_path: Path, monkeypatch):
     data_dir = tmp_path / "configured" / "data"
-    monkeypatch.setenv("REGULON_DATA_DIR", str(data_dir))
+    monkeypatch.setenv("QUORUM_DATA_DIR", str(data_dir))
 
     result = CliRunner().invoke(app, ["ingest", str(corpus)])
 
     assert result.exit_code == 0, result.output
-    assert (data_dir / "regulon.sqlite3").is_file()
+    assert (data_dir / "quorum.sqlite3").is_file()
 
 
 def test_cli_exits_non_zero_when_the_knowledge_base_cannot_be_opened(corpus: Path, tmp_path: Path):
@@ -274,7 +274,7 @@ def test_cli_rejects_a_path_that_does_not_exist(tmp_path: Path):
 
 
 def test_cli_version_prints_the_installed_version():
-    from regulon import __version__
+    from quorum import __version__
 
     result = CliRunner().invoke(app, ["version"])
 
@@ -282,7 +282,7 @@ def test_cli_version_prints_the_installed_version():
     assert result.stdout.strip() == __version__
 
 
-@pytest.mark.parametrize("module", ["regulon.cli", "regulon.cli.main"])
+@pytest.mark.parametrize("module", ["quorum.cli", "quorum.cli.main"])
 def test_module_entry_point_runs_the_application(corpus: Path, tmp_path: Path, module: str):
     """``python -m`` must run the app, not import it and exit silently with code 0."""
     expected = ingest(corpus, tmp_path / "expected.sqlite3")
@@ -300,13 +300,13 @@ def test_module_entry_point_runs_the_application(corpus: Path, tmp_path: Path, m
 
 
 def test_package_re_export_is_the_same_application_object():
-    import regulon.cli
+    import quorum.cli
 
-    assert regulon.cli.app is app
+    assert quorum.cli.app is app
 
 
 def test_package_rejects_an_unknown_attribute():
-    import regulon.cli
+    import quorum.cli
 
     with pytest.raises(AttributeError):
-        _ = regulon.cli.does_not_exist
+        _ = quorum.cli.does_not_exist

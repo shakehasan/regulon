@@ -1,9 +1,9 @@
-"""Regulon: governed multi-agent RAG platform."""
+"""Quorum: governed multi-agent RAG platform."""
 
 from importlib.metadata import PackageNotFoundError, version
 
 try:
-    __version__ = version("regulon")
+    __version__ = version("quorum")
 except PackageNotFoundError:  # pragma: no cover - only hit when not installed
     __version__ = "0.0.0"
 

@@ -28,7 +28,7 @@ apps/dashboard/.next/
 # Local runtime artifacts (not committed reports)
 *.sqlite3
 *.db
-.regulon/
+.quorum/
 
 # Filings fetched by scripts/fetch_edgar_sample.py. Public-domain, but user-fetched
 # artifacts rather than repo content — the bundled corpus is the SYNTHETIC one.

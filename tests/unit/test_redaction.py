@@ -8,9 +8,9 @@ the redactor with realistically shaped input at run time.
 
 import pytest
 
-from regulon.core.config import RedactionSettings, load_settings
-from regulon.ingestion.models import REDACTION_KINDS, RedactionResult
-from regulon.ingestion.redaction import Redactor
+from quorum.core.config import RedactionSettings, load_settings
+from quorum.ingestion.models import REDACTION_KINDS, RedactionResult
+from quorum.ingestion.redaction import Redactor
 
 # --- samples, assembled so the literals never appear in source ---------------------------------
 

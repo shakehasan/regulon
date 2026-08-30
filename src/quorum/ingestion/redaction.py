@@ -1,17 +1,17 @@
 """Deterministic PII redaction, applied at ingest before any text reaches the store.
 
 The redactor is a pure function of its input: identical text always yields identical replaced
-text and an identical :class:`~regulon.ingestion.models.RedactionEvent` sequence, with no clock,
+text and an identical :class:`~quorum.ingestion.models.RedactionEvent` sequence, with no clock,
 no randomness, and no network. That matters twice over - ingestion must be replayable, and the
 audit trail has to record *where* something was removed without ever storing what it was.
 
-Three categories are detected, matching :data:`~regulon.ingestion.models.REDACTION_KINDS`:
+Three categories are detected, matching :data:`~quorum.ingestion.models.REDACTION_KINDS`:
 
 * ``email`` - a local part, ``@``, and a dotted domain ending in an alphabetic top-level label.
 * ``phone`` - a ``+`` country-code form, a parenthesized area code, or a dash/dot delimited
   ``NNN-NNN-NNNN`` triple, each optionally preceded by a country code.
 * ``ssn`` - the US social-security shape ``NNN-NN-NNNN``, written with one consistent separator
-  drawn from :attr:`~regulon.core.config.RedactionSettings.ssn_separators` (dash only by default).
+  drawn from :attr:`~quorum.core.config.RedactionSettings.ssn_separators` (dash only by default).
 
 Precision is preferred over recall on purpose. Filings are dense with figures, so a bare run of
 digits is never read as a phone number, and space-separated triples are matched only when a ``+``
@@ -21,7 +21,7 @@ placeholder in text that held no personal data to begin with. The tradeoff is do
 than tuned: ``5551234567`` and ``555 123 4567`` pass through untouched, and so does ``123 45 6789``
 under the default SSN separator set - a space-separated run in a filing is far more likely to be
 three columns of a table than a social-security number. Widen ``ssn_separators`` in
-``config/regulon.yaml`` for corpora where that assumption does not hold.
+``config/quorum.yaml`` for corpora where that assumption does not hold.
 
 Matches from different categories can overlap. They are resolved **leftmost-longest**: candidates
 are ordered by start offset, then by descending length, then by a fixed category precedence, and
@@ -39,8 +39,8 @@ import re
 from dataclasses import dataclass
 from functools import lru_cache
 
-from regulon.core.config import RedactionSettings, load_settings
-from regulon.ingestion.models import RedactionEvent, RedactionResult
+from quorum.core.config import RedactionSettings, load_settings
+from quorum.ingestion.models import RedactionEvent, RedactionResult
 
 _EMAIL_PATTERN: re.Pattern[str] = re.compile(
     # Refuse to start mid-token, so a URI-prefixed address matches from its true first character
@@ -78,7 +78,7 @@ def _ssn_pattern(separators: str) -> re.Pattern[str]:
 
     Args:
         separators: Characters accepted between SSN groups, from
-            :attr:`~regulon.core.config.RedactionSettings.ssn_separators`.
+            :attr:`~quorum.core.config.RedactionSettings.ssn_separators`.
 
     Returns:
         The compiled detector.
@@ -171,8 +171,8 @@ class Redactor:
 
         Args:
             settings: Redaction configuration. Defaults to ``ingestion.redaction`` from the
-                loaded :class:`~regulon.core.config.Settings`, so thresholds and the placeholder
-                template stay in ``config/regulon.yaml``.
+                loaded :class:`~quorum.core.config.Settings`, so thresholds and the placeholder
+                template stay in ``config/quorum.yaml``.
 
         Raises:
             KeyError: If the configured placeholder references a field other than ``kind``.
@@ -189,7 +189,7 @@ class Redactor:
             text: Text to redact.
 
         Returns:
-            The redacted text plus one :class:`~regulon.ingestion.models.RedactionEvent` per
+            The redacted text plus one :class:`~quorum.ingestion.models.RedactionEvent` per
             replacement, ordered by ``start_char`` ascending. Event offsets index the *original*
             ``text``, so ``text[event.start_char:event.end_char]`` is the span that was removed.
             When redaction is disabled the input is returned unchanged with no events.

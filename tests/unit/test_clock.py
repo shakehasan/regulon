@@ -2,7 +2,7 @@ from datetime import UTC, datetime, timedelta, timezone
 
 import pytest
 
-from regulon.core.clock import Clock, FixedClock, SystemClock, isoformat_utc
+from quorum.core.clock import Clock, FixedClock, SystemClock, isoformat_utc
 
 
 def test_system_clock_returns_aware_utc():

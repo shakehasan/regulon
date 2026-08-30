@@ -1,8 +1,8 @@
-"""The SQLite representation behind :mod:`regulon.ingestion.store`: statements and row mapping.
+"""The SQLite representation behind :mod:`quorum.ingestion.store`: statements and row mapping.
 
 Everything that knows about column names lives here, separate from the store's connection and
 transaction behavior, so a migration in a later milestone is a diff against one file. Nothing in
-this module opens a connection or executes SQL; :class:`~regulon.ingestion.store.SQLiteChunkStore`
+this module opens a connection or executes SQL; :class:`~quorum.ingestion.store.SQLiteChunkStore`
 runs these statements with bound parameters and hands rows back for mapping.
 
 Two constraints in the schema carry meaning:
@@ -19,7 +19,7 @@ from __future__ import annotations
 import sqlite3
 from typing import TypeAlias
 
-from regulon.ingestion.models import Chunk, ChunkMetadata, NormalizedDocument
+from quorum.ingestion.models import Chunk, ChunkMetadata, NormalizedDocument
 
 SqlValue: TypeAlias = str | int | float | bytes | None
 """Every Python type this schema binds into a statement or reads out of a row."""

@@ -2,17 +2,17 @@
 
 This module is the only place the four ingestion stages meet, and it fixes their order:
 
-1. :func:`~regulon.ingestion.loaders.load_document` parses and normalizes the source.
-2. :class:`~regulon.ingestion.redaction.Redactor` removes PII from the normalized text.
-3. :class:`~regulon.ingestion.chunking.Chunker` splits the **redacted** text.
-4. :class:`~regulon.ingestion.store.ChunkStore` persists the document and its chunks.
+1. :func:`~quorum.ingestion.loaders.load_document` parses and normalizes the source.
+2. :class:`~quorum.ingestion.redaction.Redactor` removes PII from the normalized text.
+3. :class:`~quorum.ingestion.chunking.Chunker` splits the **redacted** text.
+4. :class:`~quorum.ingestion.store.ChunkStore` persists the document and its chunks.
 
 **Redaction runs before chunking, and before anything is written.** No un-redacted text ever
 reaches the knowledge base, not even transiently, because redaction happens in memory between
 parsing and the first store call. The cost of that ordering is an offset shift: a placeholder is
 rarely the same length as the text it replaces, so every character offset in a stored document -
-:class:`~regulon.ingestion.models.Section` bounds, :attr:`~regulon.ingestion.models.Chunk.start_char`
-and :attr:`~regulon.ingestion.models.Chunk.end_char` - indexes the **redacted** text that was
+:class:`~quorum.ingestion.models.Section` bounds, :attr:`~quorum.ingestion.models.Chunk.start_char`
+and :attr:`~quorum.ingestion.models.Chunk.end_char` - indexes the **redacted** text that was
 stored, never the original file. The pipeline maintains that by remapping section offsets through
 the redaction events before chunking, so the contract invariant
 ``stored_document.text[chunk.start_char:chunk.end_char] == chunk.text`` holds for every stored
@@ -27,11 +27,11 @@ accumulating a second copy of text the store cannot tell apart.
 
 Batch ingestion is fault-tolerant and deterministic. Every non-hidden file under a directory is
 attempted in sorted order; a file with no parser, or one that fails to parse, is recorded in
-:attr:`~regulon.ingestion.models.IngestReport.skipped` with its reason and the run continues.
-Unlike :func:`~regulon.ingestion.loaders.iter_source_files`, which filters unsupported extensions
+:attr:`~quorum.ingestion.models.IngestReport.skipped` with its reason and the run continues.
+Unlike :func:`~quorum.ingestion.loaders.iter_source_files`, which filters unsupported extensions
 out silently, the pipeline reports them: a user who points at a directory should be told which of
 its files did not make it into the knowledge base. A
-:class:`~regulon.ingestion.errors.StoreError` is not caught - a knowledge base that cannot be
+:class:`~quorum.ingestion.errors.StoreError` is not caught - a knowledge base that cannot be
 written cannot produce a meaningful report - so it aborts the run.
 """
 
@@ -43,11 +43,11 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from regulon.core.config import Settings, load_settings
-from regulon.ingestion.chunking import Chunker
-from regulon.ingestion.errors import DocumentParseError, UnsupportedSourceError
-from regulon.ingestion.loaders import load_document
-from regulon.ingestion.models import (
+from quorum.core.config import Settings, load_settings
+from quorum.ingestion.chunking import Chunker
+from quorum.ingestion.errors import DocumentParseError, UnsupportedSourceError
+from quorum.ingestion.loaders import load_document
+from quorum.ingestion.models import (
     DocumentIngestSummary,
     IngestReport,
     NormalizedDocument,
@@ -55,8 +55,8 @@ from regulon.ingestion.models import (
     Section,
     make_document_id,
 )
-from regulon.ingestion.redaction import Redactor
-from regulon.ingestion.store import ChunkStore
+from quorum.ingestion.redaction import Redactor
+from quorum.ingestion.store import ChunkStore
 
 __all__ = ["IngestionPipeline"]
 
@@ -214,8 +214,8 @@ class IngestionPipeline:
         Args:
             store: Knowledge base to persist documents and chunks into. The pipeline depends on
                 the protocol only, so a non-SQLite store drops in without a pipeline change.
-            settings: Regulon configuration. Defaults to the loaded settings, so chunk sizes and
-                the redaction placeholder stay in ``config/regulon.yaml``.
+            settings: Quorum configuration. Defaults to the loaded settings, so chunk sizes and
+                the redaction placeholder stay in ``config/quorum.yaml``.
         """
         self._store = store
         self._settings = settings if settings is not None else load_settings()

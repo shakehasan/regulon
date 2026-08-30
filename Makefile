@@ -1,4 +1,4 @@
-# Regulon developer entrypoints.
+# Quorum developer entrypoints.
 # Every target works on Linux, macOS, and Windows (Git Bash / GNU make).
 
 .DEFAULT_GOAL := help
@@ -18,7 +18,7 @@ PY := $(VENV_BIN)/python
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-12s %s\n", $$1, $$2}'
 
-setup: ## Create venv and install regulon with dev dependencies
+setup: ## Create venv and install quorum with dev dependencies
 	$(SYS_PY) -m venv .venv
 	$(PY) -m pip install --upgrade pip
 	$(PY) -m pip install -e ".[dev]"

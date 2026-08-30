@@ -1,15 +1,15 @@
 cff-version: 1.2.0
 message: >-
-  If you use Regulon in coursework, a tutorial, a talk, or your own project,
+  If you use Quorum in coursework, a tutorial, a talk, or your own project,
   a citation or a link back is appreciated but never required — this project
   is free to learn from and build on under the MIT license.
-title: Regulon
+title: Quorum
 type: software
 authors:
   - given-names: Shake MD Tareq
     family-names: Hasan
     alias: shakehasan
-repository-code: "https://github.com/shakehasan/regulon"
+repository-code: "https://github.com/shakehasan/quorum"
 abstract: >-
   An open-source, local-first reference platform for governed multi-agent
   RAG: LangGraph orchestration, hybrid retrieval with citations, layered

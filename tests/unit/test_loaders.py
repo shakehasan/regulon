@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from regulon.ingestion import DocumentMetadata, DocumentParseError, SourceKind, UnsupportedSourceError
-from regulon.ingestion.loaders import detect_kind, iter_source_files, load_document
+from quorum.ingestion import DocumentMetadata, DocumentParseError, SourceKind, UnsupportedSourceError
+from quorum.ingestion.loaders import detect_kind, iter_source_files, load_document
 
 # --- helpers ----------------------------------------------------------------------------
 
