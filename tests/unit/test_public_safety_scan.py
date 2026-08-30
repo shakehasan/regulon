@@ -70,6 +70,66 @@ def test_detects_self_praise(clean_dir):
     assert "self-praise" in result.stdout
 
 
+@pytest.mark.parametrize(
+    "phrase",
+    [
+        "during my " + "time at",
+        "in my " + "role as a platform engineer",
+        "my previous " + "employer",
+        "my work " + "experience",
+        "my " + "career",
+    ],
+)
+def test_detects_personal_history(clean_dir, phrase):
+    """The repo documents code, never a person's biography or work history."""
+    (clean_dir / "about.md").write_text(f"Some prose {phrase} and more prose.\n", encoding="utf-8")
+    result = run_scan(clean_dir)
+    assert result.returncode == 1, result.stdout
+    assert "personal-history" in result.stdout
+
+
+@pytest.mark.parametrize(
+    "phrase",
+    [
+        "hiring " + "manager",
+        "recrui" + "ter",
+        "job " + "market",
+        "job " + "application",
+        "open " + "to work",
+        "portfolio " + "piece",
+        "hire " + "me",
+    ],
+)
+def test_detects_career_language(clean_dir, phrase):
+    """This is a technical artifact for the community, never a career document."""
+    (clean_dir / "notes.md").write_text(f"Text mentioning a {phrase} here.\n", encoding="utf-8")
+    result = run_scan(clean_dir)
+    assert result.returncode == 1, result.stdout
+    assert "career-or-hiring-language" in result.stdout
+
+
+@pytest.mark.parametrize(
+    "sentence",
+    [
+        "The job of the supervisor is to plan and route sub-tasks.",
+        "Resume the run from the last checkpoint after a failure.",
+        "Each specialist agent is scoped to one job rather than many.",
+        "We built this chunker to respect section boundaries.",
+        "The pipeline resumes cleanly because ingest is idempotent.",
+        "Career-independent naming keeps the module vocabulary neutral.",
+    ],
+)
+def test_ordinary_engineering_prose_is_not_flagged(clean_dir, sentence):
+    """Guard against over-broad rules: these are legitimate sentences that must pass.
+
+    ``job`` and ``resume`` are ordinary engineering words and appear throughout this repo, so the
+    career rule matches specific multi-word phrases rather than those bare terms.
+    """
+    (clean_dir / "docs.md").write_text(sentence + "\n", encoding="utf-8")
+    result = run_scan(clean_dir)
+    assert result.returncode == 0, result.stdout
+
+
 def test_exclusions_respected(tmp_path):
     planted = "AKIA" + "Y" * 16
     (tmp_path / "PLAN.md").write_text(f"example bad token: {planted}\n", encoding="utf-8")

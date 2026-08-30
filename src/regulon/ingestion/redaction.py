@@ -10,14 +10,18 @@ Three categories are detected, matching :data:`~regulon.ingestion.models.REDACTI
 * ``email`` - a local part, ``@``, and a dotted domain ending in an alphabetic top-level label.
 * ``phone`` - a ``+`` country-code form, a parenthesized area code, or a dash/dot delimited
   ``NNN-NNN-NNNN`` triple, each optionally preceded by a country code.
-* ``ssn`` - the US social-security shape ``NNN-NN-NNNN``, written with one consistent separator.
+* ``ssn`` - the US social-security shape ``NNN-NN-NNNN``, written with one consistent separator
+  drawn from :attr:`~regulon.core.config.RedactionSettings.ssn_separators` (dash only by default).
 
 Precision is preferred over recall on purpose. Filings are dense with figures, so a bare run of
 digits is never read as a phone number, and space-separated triples are matched only when a ``+``
 country code or a parenthesized area code marks the run as a phone number. A false positive
 silently corrupts a financial fact, which is worse for a retrieval corpus than a missed
 placeholder in text that held no personal data to begin with. The tradeoff is documented rather
-than tuned: ``5551234567`` and ``555 123 4567`` pass through untouched.
+than tuned: ``5551234567`` and ``555 123 4567`` pass through untouched, and so does ``123 45 6789``
+under the default SSN separator set - a space-separated run in a filing is far more likely to be
+three columns of a table than a social-security number. Widen ``ssn_separators`` in
+``config/regulon.yaml`` for corpora where that assumption does not hold.
 
 Matches from different categories can overlap. They are resolved **leftmost-longest**: candidates
 are ordered by start offset, then by descending length, then by a fixed category precedence, and
@@ -33,6 +37,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from functools import lru_cache
 
 from regulon.core.config import RedactionSettings, load_settings
 from regulon.ingestion.models import RedactionEvent, RedactionResult
@@ -62,16 +67,36 @@ _PHONE_PATTERN: re.Pattern[str] = re.compile(
     rf"(?<![\d+])(?:{_PHONE_INTERNATIONAL}|{_PHONE_PARENTHESIZED}|{_PHONE_DELIMITED})(?!\d)"
 )
 
-_SSN_PATTERN: re.Pattern[str] = re.compile(r"(?<!\d)\d{3}(?P<ssn_sep>[-. ])\d{2}(?P=ssn_sep)\d{4}(?!\d)")
 
-_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
-    ("email", _EMAIL_PATTERN),
-    ("ssn", _SSN_PATTERN),
-    ("phone", _PHONE_PATTERN),
-)
-"""Detectors in precedence order; earlier entries win a tie on both start offset and length."""
+@lru_cache(maxsize=8)
+def _ssn_pattern(separators: str) -> re.Pattern[str]:
+    """Compile the SSN detector for a configured separator set.
 
-_KINDS: tuple[str, ...] = tuple(kind for kind, _ in _PATTERNS)
+    The separator is back-referenced, so both gaps must use the same character: a dash-dash pairing
+    matches, a dash-then-dot pairing does not. Cached because the pattern depends only on
+    configuration and a run reuses one separator set for every document.
+
+    Args:
+        separators: Characters accepted between SSN groups, from
+            :attr:`~regulon.core.config.RedactionSettings.ssn_separators`.
+
+    Returns:
+        The compiled detector.
+    """
+    return re.compile(rf"(?<!\d)\d{{3}}(?P<ssn_sep>[{re.escape(separators)}])\d{{2}}(?P=ssn_sep)\d{{4}}(?!\d)")
+
+
+_KINDS: tuple[str, ...] = ("email", "ssn", "phone")
+"""Detector categories in precedence order; earlier entries win a tie on start offset and length."""
+
+
+def _patterns(ssn_separators: str) -> tuple[tuple[str, re.Pattern[str]], ...]:
+    """Return the detectors in precedence order for a configured SSN separator set."""
+    return (
+        ("email", _EMAIL_PATTERN),
+        ("ssn", _ssn_pattern(ssn_separators)),
+        ("phone", _PHONE_PATTERN),
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -82,7 +107,7 @@ class _Candidate:
         start: Inclusive start offset of the hit in the input text.
         end: Exclusive end offset of the hit in the input text.
         kind: Category of the detector that produced the hit.
-        precedence: Position of that detector in :data:`_PATTERNS`; lower wins a tie.
+        precedence: Position of that detector in :func:`_patterns`; lower wins a tie.
     """
 
     start: int
@@ -95,11 +120,12 @@ class _Candidate:
         return (self.start, self.start - self.end, self.precedence)
 
 
-def _find_candidates(text: str) -> list[_Candidate]:
+def _find_candidates(text: str, ssn_separators: str) -> list[_Candidate]:
     """Return every detector hit in ``text``, ordered leftmost-longest.
 
     Args:
         text: Text to scan.
+        ssn_separators: Characters accepted between SSN groups.
 
     Returns:
         All hits from all detectors, sorted so that a greedy non-overlapping walk yields the
@@ -107,7 +133,7 @@ def _find_candidates(text: str) -> list[_Candidate]:
     """
     candidates = [
         _Candidate(start=match.start(), end=match.end(), kind=kind, precedence=precedence)
-        for precedence, (kind, pattern) in enumerate(_PATTERNS)
+        for precedence, (kind, pattern) in enumerate(_patterns(ssn_separators))
         for match in pattern.finditer(text)
     ]
     candidates.sort(key=_Candidate.order_key)
@@ -171,7 +197,7 @@ class Redactor:
         if not self._settings.enabled:
             return RedactionResult(text=text, events=())
 
-        selected = _select_non_overlapping(_find_candidates(text))
+        selected = _select_non_overlapping(_find_candidates(text, self._settings.ssn_separators))
         if not selected:
             return RedactionResult(text=text, events=())
 

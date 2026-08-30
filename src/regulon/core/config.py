@@ -42,6 +42,15 @@ class RedactionSettings(BaseModel):
 
     enabled: bool = True
     placeholder: str = "[REDACTED:{kind}]"
+    ssn_separators: str = Field(default="-", min_length=1)
+    """Separator characters accepted between the groups of an SSN-shaped number.
+
+    Dash only by default. Filings are dense with tabulated figures, and a space-separated run like
+    ``123 45 6789`` is far more likely to be three numbers in a table than a social-security
+    number — redacting it would silently destroy a financial fact, which is worse for a retrieval
+    corpus than leaving a placeholder unwritten. Widen this (for example to ``"-. "``) when
+    ingesting document types where SSNs genuinely appear with other separators.
+    """
 
 
 class EdgarSettings(BaseModel):

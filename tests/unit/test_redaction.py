@@ -88,15 +88,44 @@ def test_phone_numbers_are_replaced(redactor, phone):
     assert spans(text, result) == [phone]
 
 
-@pytest.mark.parametrize("ssn", [SSN_DASHED, SSN_SPACED, SSN_DOTTED])
-def test_ssn_shaped_values_are_replaced(redactor, ssn):
-    text = f"Identifier {ssn} on file."
+def test_dash_separated_ssn_is_replaced(redactor):
+    text = f"Identifier {SSN_DASHED} on file."
 
     result = redactor.redact(text)
 
     assert result.text == f"Identifier {SSN_PLACEHOLDER} on file."
     assert [event.kind for event in result.events] == ["ssn"]
-    assert spans(text, result) == [ssn]
+    assert spans(text, result) == [SSN_DASHED]
+
+
+@pytest.mark.parametrize("value", [SSN_SPACED, SSN_DOTTED])
+def test_space_and_dot_separated_runs_survive_by_default(redactor, value):
+    """Precision bias: a tabulated figure must not be destroyed by an over-eager detector.
+
+    Filings are dense with numbers, so a run like ``123 45 6789`` is far more likely to be three
+    table columns than a social-security number. Redacting it would corrupt a financial fact
+    irrecoverably, which is worse than leaving a placeholder unwritten in text that held no
+    personal data. The default separator set is dash-only; see ``ingestion.redaction.ssn_separators``.
+    """
+    text = f"Segment totals {value} across regions."
+
+    result = redactor.redact(text)
+
+    assert result.text == text
+    assert result.events == ()
+
+
+@pytest.mark.parametrize("value", [SSN_SPACED, SSN_DOTTED])
+def test_widened_separator_set_catches_other_ssn_shapes(value):
+    """Corpora where SSNs genuinely use other separators can opt in through configuration."""
+    redactor = Redactor(RedactionSettings(ssn_separators="-. "))
+    text = f"Identifier {value} on file."
+
+    result = redactor.redact(text)
+
+    assert result.text == f"Identifier {SSN_PLACEHOLDER} on file."
+    assert [event.kind for event in result.events] == ["ssn"]
+    assert spans(text, result) == [value]
 
 
 def test_every_contract_kind_is_reachable(redactor):

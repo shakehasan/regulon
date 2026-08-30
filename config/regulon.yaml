@@ -22,6 +22,11 @@ ingestion:
     # Deterministic PII redaction applied at ingest, before anything is stored.
     enabled: true
     placeholder: "[REDACTED:{kind}]"
+    # Separators accepted inside an SSN-shaped number. Dash only by default: filings are dense
+    # with tabulated figures, and "123 45 6789" is far more likely to be three table columns
+    # than a social-security number. Redacting it would destroy a financial fact silently.
+    # Widen to "-. " for corpora where SSNs genuinely appear with other separators.
+    ssn_separators: "-"
   edgar:
     # SEC EDGAR requires a descriptive User-Agent identifying the requester.
     # Override with REGULON_INGESTION__EDGAR__USER_AGENT before fetching real filings.

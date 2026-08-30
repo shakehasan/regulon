@@ -55,6 +55,22 @@ patterns:
     description: Claims that this software runs in production at a specific firm
     regex: '(?i)\b(in production at|used in production by|deployed at) [A-Z]'
 
+  - name: personal-history
+    description: >
+      First-person work-history or biography phrasing. Regulon is a standalone open-source project
+      documented on its own technical merits; it carries no author biography, no work history, and
+      no account of where or why anything was previously built. Describe what the CODE does, never
+      what a person did.
+    regex: '(?i)\b(during my time (at|with)|in my (role|position|job|previous role)\b|my (previous|former|current|last)\s+(employer|company|firm|team|role|job|position|workplace)|my (work|professional|industry)\s+(experience|background|history)|my career|years of experience (at|with|in a)|i (worked|consulted|contracted)\s+(at|for)\s+[A-Z])'
+
+  - name: career-or-hiring-language
+    description: >
+      Job-seeking, hiring, or personal-promotion vocabulary. This repository is a technical artifact
+      for the open-source community and must never read as a career document. Phrases are matched
+      specifically to avoid colliding with ordinary engineering English ("the job of the supervisor",
+      "resume the run"), so bare words like "job" or "resume" are deliberately NOT listed here.
+    regex: '(?i)\b(hiring manager|recruiters?\b|job (market|application|seeker|search|hunt|interview)|curriculum vitae|\bcv\b and resume|resum[eé] (screening|review|bullet|point)|open to work|looking for (a job|work|a role|opportunities)|portfolio piece|interview (prep|preparation)|salary (range|expectation)|hire me|employability)'
+
   - name: aws-access-key
     description: AWS access key IDs
     regex: '\bAKIA[0-9A-Z]{16}\b'
